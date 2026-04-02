@@ -81,13 +81,9 @@ Resources:
             var request = event.request;
             var uri = request.uri;
             
-            // If the URI ends with '/', append 'index.html'
-            if (uri.endsWith('/')) {
+            // If the URI doesn't have a '.' (no extension), append 'index.html'
+            if (!uri.includes('.')) {
                 request.uri += 'index.html';
-            } 
-            // If the URI doesn't have a '.' (no extension), append '/index.html'
-            else if (!uri.includes('.')) {
-                request.uri += '/index.html';
             }
 
             return request;

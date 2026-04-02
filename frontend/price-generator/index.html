@@ -116,6 +116,7 @@
         import {Amplify} from 'https://esm.sh/aws-amplify@6';
         import {events} from 'https://esm.sh/aws-amplify@6/api';
         import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.8/dist/module.esm.js';
+        import {gaussianRandom, sortByVolume} from './util.js'
 
         const GENERATOR_INTERVAL_MS = 1000;
         const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
@@ -308,26 +309,6 @@
 
         window.Alpine = Alpine;
         Alpine.start();
-    </script>
-
-    <script>
-        /**
-         * Generates a random number following a normal distribution.
-         */
-        function gaussianRandom(mean, stdev) {
-            const u = 1 - Math.random();
-            const v = Math.random();
-            const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-            return z * stdev + mean;
-        }
-
-        /**
-         * Sorts a list of stocks by their volume in descending order.
-         */
-        function sortByVolume(stockList) {
-            return stockList.toSorted((stock1, stock2) => stock2.volume - stock1.volume);
-        }
-
     </script>
   </body>
 </html>
