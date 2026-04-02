@@ -60,6 +60,7 @@
             return {
                 enabled: false,
                 generator: null,
+                stockList: [],
                 loading: false,
                 error: null,
                 apiUrl: '${ClaimsApiUrl}',
@@ -72,13 +73,14 @@
                 },
                 enable() {
                     this.resetGenerator();
-                    let counter = 0;
+                    this.stockList = getRandomStocks();
                     this.generator = setInterval(
                         () => {
-                            console.log('count is ' + counter++)
+                            this.stockList = randomisePrice(this.stockList);
+                            console.log('Generated stock list', this.stockList);
                         },
                         GENERATOR_INTERVAL_MS
-                    )
+                    );
 
                     this.enabled = true;
                 },
@@ -95,9 +97,65 @@
             }
         }
 
-        // Expose Alpine to window and start it
-        window.Alpine = Alpine;
-        Alpine.start();
+        function randomisePrice(stockList) {
+            console.log('Randomising price...');
+            return [...stockList];
+        }
+
+        function getRandomStocks() {
+            return [
+                { name: "NVIDIA Corporation", symbol: "NVDA", market: "NASDAQ", lastPrice: 175.75, askPrice: 175.80, bidPrice: 175.70, volume: "168.13M", marketCap: "4.27T" },
+                { name: "Apple Inc.", symbol: "AAPL", market: "NASDAQ", lastPrice: 255.63, askPrice: 255.70, bidPrice: 255.55, volume: "40.06M", marketCap: "3.75T" },
+                { name: "Alphabet Inc. (Class A)", symbol: "GOOGL", market: "NASDAQ", lastPrice: 297.48, askPrice: 297.55, bidPrice: 297.40, volume: "24.40M", marketCap: "3.47T" },
+                { name: "Microsoft Corporation", symbol: "MSFT", market: "NASDAQ", lastPrice: 369.37, askPrice: 369.45, bidPrice: 369.30, volume: "29.41M", marketCap: "2.74T" },
+                { name: "Amazon.com, Inc.", symbol: "AMZN", market: "NASDAQ", lastPrice: 210.57, askPrice: 210.65, bidPrice: 210.50, volume: "45.95M", marketCap: "2.26T" },
+                { name: "Broadcom Inc.", symbol: "AVGO", market: "NASDAQ", lastPrice: 313.49, askPrice: 313.60, bidPrice: 313.40, volume: "19.17M", marketCap: "1.48T" },
+                { name: "Tesla, Inc.", symbol: "TSLA", market: "NASDAQ", lastPrice: 381.26, askPrice: 381.40, bidPrice: 381.10, volume: "58.68M", marketCap: "1.43T" },
+                { name: "Meta Platforms, Inc.", symbol: "META", market: "NASDAQ", lastPrice: 579.23, askPrice: 579.40, bidPrice: 579.10, volume: "23.61M", marketCap: "1.27T" },
+                { name: "Berkshire Hathaway Inc. (B)", symbol: "BRK.B", market: "NYSE", lastPrice: 478.54, askPrice: 478.65, bidPrice: 478.45, volume: "3.20M", marketCap: "1.03T" },
+                { name: "Walmart Inc.", symbol: "NYSE", lastPrice: 124.74, askPrice: 124.80, bidPrice: 124.70, volume: "17.04M", marketCap: "994.48B" },
+                { name: "Eli Lilly and Company", symbol: "LLY", market: "NYSE", lastPrice: 954.52, askPrice: 954.80, bidPrice: 954.20, volume: "6.27M", marketCap: "901.85B" },
+                { name: "JPMorgan Chase & Co.", symbol: "JPM", market: "NYSE", lastPrice: 295.38, askPrice: 295.50, bidPrice: 295.25, volume: "11.27M", marketCap: "796.65B" },
+                { name: "Exxon Mobil Corporation", symbol: "XOM", market: "NYSE", lastPrice: 160.78, askPrice: 160.90, bidPrice: 160.65, volume: "37.93M", marketCap: "669.93B" },
+                { name: "Johnson & Johnson", symbol: "JNJ", market: "NYSE", lastPrice: 244.12, askPrice: 244.25, bidPrice: 244.00, volume: "6.31M", marketCap: "588.30B" },
+                { name: "Visa Inc.", symbol: "V", market: "NYSE", lastPrice: 298.51, askPrice: 298.65, bidPrice: 298.40, volume: "7.71M", marketCap: "501.82B" },
+                { name: "Costco Wholesale Corp.", symbol: "COST", market: "NASDAQ", lastPrice: 996.56, askPrice: 996.80, bidPrice: 996.30, volume: "1.77M", marketCap: "442.13B" },
+                { name: "Mastercard Incorporated", symbol: "MA", market: "NYSE", lastPrice: 491.65, askPrice: 491.80, bidPrice: 491.50, volume: "4.61M", marketCap: "435.22B" },
+                { name: "Oracle Corporation", symbol: "ORCL", market: "NYSE", lastPrice: 145.23, askPrice: 145.30, bidPrice: 145.15, volume: "20.50M", marketCap: "417.69B" },
+                { name: "Micron Technology, Inc.", symbol: "MU", market: "NASDAQ", lastPrice: 367.85, askPrice: 368.00, bidPrice: 367.70, volume: "74.43M", marketCap: "414.84B" },
+                { name: "Netflix, Inc.", symbol: "NFLX", market: "NASDAQ", lastPrice: 95.55, askPrice: 95.65, bidPrice: 95.45, volume: "30.44M", marketCap: "403.43B" },
+                { name: "Chevron Corporation", symbol: "CVX", market: "NYSE", lastPrice: 197.41, askPrice: 197.60, bidPrice: 197.25, volume: "23.05M", marketCap: "393.91B" },
+                { name: "AbbVie Inc.", symbol: "ABBV", market: "NYSE", lastPrice: 214.98, askPrice: 215.10, bidPrice: 214.85, volume: "5.70M", marketCap: "380.12B" },
+                { name: "Bank of America Corp.", symbol: "BAC", market: "NYSE", lastPrice: 49.27, askPrice: 49.32, bidPrice: 49.22, volume: "32.95M", marketCap: "353.60B" },
+                { name: "Advanced Micro Devices", symbol: "AMD", market: "NASDAQ", lastPrice: 210.21, askPrice: 210.35, bidPrice: 210.10, volume: "40.83M", marketCap: "342.73B" },
+                { name: "Caterpillar Inc.", symbol: "CAT", market: "NYSE", lastPrice: 730.32, askPrice: 730.60, bidPrice: 730.00, volume: "2.44M", marketCap: "339.81B" },
+                { name: "Palantir Technologies", symbol: "PLTR", market: "NYSE", lastPrice: 146.49, askPrice: 146.55, bidPrice: 146.40, volume: "34.17M", marketCap: "335.68B" },
+                { name: "Procter & Gamble Co.", symbol: "PG", market: "NYSE", lastPrice: 144.09, askPrice: 144.15, bidPrice: 144.00, volume: "8.06M", marketCap: "334.87B" },
+                { name: "The Home Depot, Inc.", symbol: "HD", market: "NYSE", lastPrice: 329.56, askPrice: 329.70, bidPrice: 329.40, volume: "3.39M", marketCap: "328.25B" },
+                { name: "The Coca-Cola Company", symbol: "KO", market: "NYSE", lastPrice: 76.08, askPrice: 76.12, bidPrice: 76.04, volume: "15.83M", marketCap: "327.20B" },
+                { name: "Cisco Systems, Inc.", symbol: "CSCO", market: "NASDAQ", lastPrice: 77.93, askPrice: 77.98, bidPrice: 77.88, volume: "21.31M", marketCap: "307.81B" },
+                { name: "GE Aerospace", symbol: "GE", market: "NYSE", lastPrice: 292.68, askPrice: 292.85, bidPrice: 292.50, volume: "5.24M", marketCap: "306.97B" },
+                { name: "Merck & Co., Inc.", symbol: "MRK", market: "NYSE", lastPrice: 120.84, askPrice: 120.92, bidPrice: 120.76, volume: "6.35M", marketCap: "298.76B" },
+                { name: "Applied Materials, Inc.", symbol: "AMAT", market: "NASDAQ", lastPrice: 353.80, askPrice: 354.00, bidPrice: 353.60, volume: "5.97M", marketCap: "280.78B" },
+                { name: "Lam Research Corp.", symbol: "LRCX", market: "NASDAQ", lastPrice: 222.01, askPrice: 222.20, bidPrice: 221.85, volume: "10.70M", marketCap: "277.24B" },
+                { name: "Morgan Stanley", symbol: "MS", market: "NYSE", lastPrice: 166.17, askPrice: 166.30, bidPrice: 166.05, volume: "7.12M", marketCap: "263.85B" },
+                { name: "Intel Corporation", symbol: "INTC", market: "NASDAQ", lastPrice: 48.01, askPrice: 48.06, bidPrice: 47.96, volume: "102.10M", marketCap: "205.40B" },
+                { name: "The Walt Disney Co.", symbol: "DIS", market: "NYSE", lastPrice: 96.56, askPrice: 96.62, bidPrice: 96.50, volume: "8.40M", marketCap: "170.70B" },
+                { name: "Salesforce, Inc.", symbol: "CRM", market: "NYSE", lastPrice: 186.24, askPrice: 186.40, bidPrice: 186.10, volume: "6.10M", marketCap: "180.30B" },
+                { name: "PepsiCo, Inc.", symbol: "PEP", market: "NASDAQ", lastPrice: 137.00, askPrice: 137.10, bidPrice: 136.90, volume: "5.20M", marketCap: "188.40B" },
+                { name: "McDonald's Corp.", symbol: "MCD", market: "NYSE", lastPrice: 307.29, askPrice: 307.45, bidPrice: 307.15, volume: "3.10M", marketCap: "220.50B" },
+                { name: "Nike, Inc.", symbol: "NKE", market: "NYSE", lastPrice: 44.63, askPrice: 44.70, bidPrice: 44.55, volume: "18.50M", marketCap: "66.40B" },
+                { name: "UnitedHealth Group", symbol: "UNH", market: "NYSE", lastPrice: 273.98, askPrice: 274.20, bidPrice: 273.75, volume: "4.80M", marketCap: "253.10B" },
+                { name: "Goldman Sachs Group", symbol: "GS", market: "NYSE", lastPrice: 860.21, askPrice: 860.50, bidPrice: 859.90, volume: "1.20M", marketCap: "285.40B" },
+                { name: "Boeing Co.", symbol: "BA", market: "NYSE", lastPrice: 207.32, askPrice: 207.50, bidPrice: 207.15, volume: "9.10M", marketCap: "126.30B" },
+                { name: "Philip Morris Intl", symbol: "PM", market: "NYSE", lastPrice: 112.40, askPrice: 112.50, bidPrice: 112.30, volume: "4.30M", marketCap: "174.60B" },
+                { name: "IBM Corporation", symbol: "IBM", market: "NYSE", lastPrice: 243.14, askPrice: 243.30, bidPrice: 243.00, volume: "3.80M", marketCap: "223.40B" },
+                { name: "Verizon Communications", symbol: "VZ", market: "NYSE", lastPrice: 49.39, askPrice: 49.45, bidPrice: 49.33, volume: "14.20M", marketCap: "207.10B" },
+                { name: "Amgen Inc.", symbol: "AMGN", market: "NASDAQ", lastPrice: 353.28, askPrice: 353.50, bidPrice: 353.05, volume: "2.10M", marketCap: "189.20B" },
+                { name: "CrowdStrike Holdings", symbol: "CRWD", market: "NASDAQ", lastPrice: 393.43, askPrice: 393.65, bidPrice: 393.20, volume: "4.10M", marketCap: "99.00B" },
+                { name: "Starbucks Corp.", symbol: "SBUX", market: "NASDAQ", lastPrice: 75.98, askPrice: 76.05, bidPrice: 75.90, volume: "7.40M", marketCap: "86.20B" }
+            ];
+        }
     </script>
   </body>
 </html>
