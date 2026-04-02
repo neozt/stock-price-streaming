@@ -3,7 +3,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "claims-approval-app"
+stack_name = "stock-price-streaming-app"
 region = "ap-southeast-1"
 
 [default.build.parameters]
@@ -17,7 +17,7 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "claims-approval-app"
+s3_prefix = "stock-price-streaming-app"
 image_repositories = []
 parameter_overrides = "Environment=\"Local\""
 
@@ -34,9 +34,9 @@ warm_containers = "EAGER"
 warm_containers = "EAGER"
 
 [prod.deploy.parameters]
-stack_name = "claims-approval-app-prod"
+stack_name = "stock-price-streaming-app-prod"
 resolve_s3 = true
-s3_prefix = "claims-approval-app-prod"
+s3_prefix = "stock-price-streaming-app-prod"
 region = "ap-southeast-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
@@ -48,11 +48,11 @@ tags = "Environment=\"Prod\""
 region = "ap-southeast-1"
 
 [dev.deploy.parameters]
-stack_name = "claims-approval-app-dev"
+stack_name = "stock-price-streaming-app-dev"
 resolve_s3 = true
-s3_prefix = "claims-approval-app-dev"
+s3_prefix = "stock-price-streaming-app-dev"
 region = "ap-southeast-1"
-confirm_changeset = true
+confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
 parameter_overrides = "Environment=Dev"

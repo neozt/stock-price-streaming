@@ -1,19 +1,12 @@
-# claims-approval-app
-
-Demo serverless project for claims submission and approval using AWS Step Functions and Lambda.
+# stock-price-streaming
 
 ## Architecture
 
-![Architecture](docs/architecture.drawio.png)
-
 ## Tech stack
-1. AWS Step Functions
-2. AWS Lambda
-3. AWS API Gateway
-4. DynamoDB
-5. SNS
-6. S3/CloudFront
-7. SAM
+1. Amazon AppSync Events
+2. AlpineJS
+3. AG Grid
+4. SAM
 
 ## How to deploy
 1. Make sure Node.js, Docker and SAM CLI are installed.
