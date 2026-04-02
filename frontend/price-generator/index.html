@@ -32,33 +32,62 @@
 
   <body class="bg-light">
     <div class="container py-5" x-data="randomGenerator()" x-cloak>
+      <!-- Generator Dashboard -->
       <div x-show="apiKey">
-        <div>
-          <h3>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</h3>
+        <div class="mb-3">
+          <a href="../index.html" class="text-decoration-none text-secondary small">&larr; Back to Streaming Dashboard</a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="mb-0">Random Price Generator</h2>
+            <p class="text-muted mb-0">
+              Status: <span class="badge" :class="enabled ? 'bg-success' : 'bg-secondary'" x-text="enabled ? 'Active' : 'Inactive'"></span>
+            </p>
+          </div>
           <button
-                  class="btn btn-primary btn-sm"
-                  @click="toggleEnabled()"
-                  x-text="enabled ? 'Disable' : 'Enable'"
+              class="btn"
+              :class="enabled ? 'btn-outline-danger' : 'btn-success btn-lg'"
+              @click="toggleEnabled()"
+              x-text="enabled ? 'Stop Generator' : 'Start Generator'"
           ></button>
         </div>
 
-        <div id="priceTable" class="mt-2" style="height: 500px"></div>
+        <div class="card shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div id="priceTable" class="ag-theme-quartz" style="height: 500px; width: 100%;"></div>
+          </div>
+        </div>
 
-        <div class="mt-4">
-          <h4>Updates:</h4>
-          <ul>
-            <template x-for="message in updateMessages">
-              <li><code x-text="message"></code></li>
+        <div class="card shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Price Tick Log</h5>
+            <button class="btn btn-sm btn-link text-decoration-none" @click="updateMessages = []" x-show="updateMessages.length > 0">Clear Logs</button>
+          </div>
+          <div class="card-body bg-dark text-light p-3 font-monospace overflow-auto" style="max-height: 250px;">
+            <div x-show="updateMessages.length === 0" class="text-muted small">No activity yet. Start the generator to see real-time updates...</div>
+            <template x-for="(message, index) in updateMessages.slice().reverse()">
+              <div class="mb-1 small">
+                <span class="text-success">>></span>
+                <span x-text="message"></span>
+              </div>
             </template>
-          </ul>
-
+          </div>
         </div>
       </div>
 
+      <!-- API Key Entry -->
       <div x-show="!apiKey">
-        <div>
-          <label>API Key:<input type="text" x-model="apiKeyInput" /></label>
-          <button class="btn btn-primary btn-sm" @click="setApiKey()">Enter</button>
+        <div class="card p-4 shadow-sm" style="max-width: 500px; margin: auto;">
+          <div class="text-center mb-4">
+            <div class="display-6 mb-2">📊</div>
+            <h3 class="card-title">Random Price Generator</h3>
+            <p class="text-muted">Enter your AppSync API Key to start broadcasting mock stock price events.</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="apiKeyInput">API Key</label>
+            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput" placeholder="da2-xxxxxxxxxxxxxxxxxxxxxxxxxx" @keyup.enter="setApiKey()" />
+          </div>
+          <button class="btn btn-primary w-100 py-2" @click="setApiKey()">Access Console</button>
         </div>
       </div>
 
@@ -81,26 +110,28 @@
         // Initialize AG Grid
         const gridOptions = {
             rowData: [],
+            getRowId: (params) => params.data.symbol,
             columnDefs: [
-                // { field: 'name' },
-                { field: 'symbol' },
-                // { field: 'market' },
-                { field: 'lastPrice' },
-                { field: 'askPrice' },
-                { field: 'bidPrice' },
-                { field: 'volume' },
-                { field: 'marketCap' },
-            ]
+                { field: 'symbol', headerName: 'Symbol', minWidth: 100 },
+                { field: 'lastPrice', headerName: 'Last Price' },
+                { field: 'askPrice', headerName: 'Ask Price' },
+                { field: 'bidPrice', headerName: 'Bid Price' },
+                { field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc' },
+                { field: 'marketCap', headerName: 'Market Cap' },
+            ],
+            defaultColDef: {
+                flex: 1,
+                sortable: true,
+                resizable: true
+            }
         };
-
-        const priceTableElement = document.querySelector('#priceTable');
-        const gridApi = agGrid.createGrid(priceTableElement, gridOptions);
 
         function randomGenerator() {
             const GENERATOR_INTERVAL_MS = 1000;
             const APP_SYNC_URL = 'https://4kkb5krso5dydp7kx6lzulqiym.appsync-api.ap-southeast-1.amazonaws.com'; // TODO parameterize this
 
             return {
+                gridApi: null,
                 apiKey: null,
                 apiKeyInput: '',
                 enabled: false,
@@ -110,9 +141,20 @@
                 loading: false,
                 error: null,
                 setApiKey() {
-                    this.apiKey = this.apiKeyInput ?? '';
+                    const key = (this.apiKeyInput ?? '').trim();
+                    if (!key) return;
+                    this.apiKey = key;
                     console.log("Using API Key: " + this.apiKey);
                     this.apiKeyInput = '';
+                    
+                    setTimeout(() => {
+                        this.initGrid();
+                    }, 50);
+                },
+                initGrid() {
+                    if (this.gridApi) return;
+                    const priceTableElement = document.querySelector('#priceTable');
+                    this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
                 },
                 toggleEnabled() {
                     if (this.enabled) {
@@ -184,26 +226,39 @@
                     }
 
                     this.stockList = sortByVolume(newStockList);
-                    const message = `Updated ${updatedSymbols.length} symbols: ${updatedSymbols.join(',')}`
+                    const message = `Published update for ${updatedSymbols.length} tickers at ${new Date().toLocaleTimeString()}`;
                     console.log(message);
                     this.updateMessages.push(message);
+                    
+                    // Keep logs manageable
+                    if (this.updateMessages.length > 50) {
+                        this.updateMessages.shift();
+                    }
                 },
                 async publishPrice() {
                     const top30ByVolume = this.stockList.slice(0, 30);
-                    await fetch(`${APP_SYNC_URL}/event`, {
-                        method: "POST",
-                        headers: {
-                            "content-type": "application/json",
-                            "x-api-key": this.apiKey
-                        },
-                        body: JSON.stringify({
-                            "channel": "stocks/top-volume-30",
-                            "events": [JSON.stringify(top30ByVolume)]
-                        }),
-                    })
+                    try {
+                        await fetch(`${APP_SYNC_URL}/event`, {
+                            method: "POST",
+                            headers: {
+                                "content-type": "application/json",
+                                "x-api-key": this.apiKey
+                            },
+                            body: JSON.stringify({
+                                "channel": "stocks/top-volume-30",
+                                "events": [JSON.stringify(top30ByVolume)]
+                            }),
+                        });
+                    } catch (e) {
+                        console.error("Failed to publish price update", e);
+                        this.error = "Publishing failed. Please check your API key and connection.";
+                        this.disable();
+                    }
                 },
                 updatePriceTable(stockList) {
-                    gridApi.setGridOption("rowData", stockList);
+                    if (this.gridApi) {
+                        this.gridApi.setGridOption("rowData", stockList);
+                    }
                 }
             }
         }
