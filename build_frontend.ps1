@@ -31,14 +31,16 @@ New-Item -ItemType Directory -Path "dist" -Force
 Write-Host "Copying frontend files to dist..."
 Copy-Item -Path "frontend/*" -Destination "dist" -Recurse
 
-# Replace placeholders in every file in dist/
+# Replace placeholders in every file with outputs from StackFormation in dist/.
+# Placeholders are enclosed by double % signs, eg %%placeholder%%.
+# IMPORTANT: Do not include secrets in frontend using placeholder, they will be included in the client bundle.
 Write-Host "Replacing placeholders with CloudFormation outputs..."
 $files = Get-ChildItem -Path "dist" -Recurse -File
 foreach ($file in $files) {
     $content = Get-Content -Path $file.FullName -Raw
     $modified = $false
     foreach ($key in $outputMap.Keys) {
-        $placeholder = "`${$key}"
+        $placeholder = "`%%$key%%"
         $value = $outputMap[$key]
         if ($content.Contains($placeholder)) {
             Write-Host "  Replacing $placeholder in $($file.Name)"

@@ -94,8 +94,8 @@
     <script>
         function stockPriceStreamer() {
             // Derived dynamically to maintain alignment with HTTP domains in AppSync
-            const APP_SYNC_HTTP_ENDPOINT = '${AppSyncHttpEndpoint}';
-            const APP_SYNC_REALTIME_ENDPOINT = '${AppSyncRealtimeEndpoint}';
+            const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
+            const APP_SYNC_REALTIME_ENDPOINT = '%%AppSyncRealtimeEndpoint%%';
             const CHANNEL = '/stocks/top-volume-30';
 
             return {
