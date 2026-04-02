@@ -106,7 +106,7 @@
                 },
                 enable() {
                     this.resetGenerator();
-                    this.stockList = getRandomStocks();
+                    this.stockList = sortByVolume(getRandomStocks());
                     this.updateMessages = [];
                     this.generator = setInterval(
                         () => {
@@ -145,21 +145,27 @@
 
                         const newStock = {...stock};
 
-                        const priceProps = ['lastPrice', 'askPrice', 'bidPrice', 'volume'];
+                        const priceProps = ['lastPrice', 'askPrice', 'bidPrice'];
 
                         priceProps.forEach(prop => {
-                            // Determine if we should update this property in this tick
                             if (Math.random() <= PROP_UPDATE_CHANCE) {
+                                // Update price fields
                                 const changePercent = gaussianRandom(0, VOLATILITY);
                                 newStock[prop] = Math.max(0, newStock[prop] * (1 + changePercent)); // Ensure value doesn't drop below 0
                             }
                         });
 
+                        if (Math.random() <= PROP_UPDATE_CHANCE) {
+                            // Update volume
+                            const changePercent = gaussianRandom(0, 0.06); // Volume is more volatile
+                            newStock.volume = Math.max(0, newStock.volume * (1 + changePercent)); // Ensure value doesn't drop below 0
+                        }
+
                         updatedSymbols.push(newStock.symbol);
                         newStockList.push(newStock);
                     }
 
-                    this.stockList = newStockList;
+                    this.stockList = sortByVolume(newStockList);
                     const message = `Updated ${updatedSymbols.length} symbols: ${updatedSymbols.join(',')}`
                     console.log(message);
                     this.updateMessages.push(message);
@@ -178,6 +184,10 @@
             const v = Math.random();
             const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
             return z * stdev + mean;
+        }
+
+        function sortByVolume(stockList) {
+            return stockList.toSorted((stock1, stock2) => stock2.volume - stock1.volume);
         }
 
         function getRandomStocks() {
