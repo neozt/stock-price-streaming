@@ -30,10 +30,14 @@
 
   <body class="bg-light">
     <div class="container py-5" x-data="randomGenerator()" x-cloak>
-      <!--      <div class="d-flex justify-content-between align-items-center mb-4">-->
-      <!--        <h1 class="h3">Pending Claims Approval</h1>-->
-      <!--        <button class="btn btn-outline-primary btn-sm" @click="fetchClaims()">Refresh List</button>-->
-      <!--      </div>-->
+      <div>
+        <div>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</div>
+        <button
+                class="btn btn-primary btn-sm"
+                @click="toggleEnabled()"
+                x-text="enabled ? 'Disable' : 'Enable'"
+        ></button>
+      </div>
 
       <!-- Loading State -->
       <div class="loading-overlay" x-show="loading">
@@ -51,12 +55,49 @@
 
     <script>
         function randomGenerator() {
+            const GENERATOR_INTERVAL_MS = 1000;
+
             return {
+                enabled: false,
+                generator: null,
                 loading: false,
                 error: null,
                 apiUrl: '${ClaimsApiUrl}',
+                toggleEnabled() {
+                    if (this.enabled) {
+                        this.disable();
+                    } else {
+                        this.enable()
+                    }
+                },
+                enable() {
+                    this.resetGenerator();
+                    let counter = 0;
+                    this.generator = setInterval(
+                        () => {
+                            console.log('count is ' + counter++)
+                        },
+                        GENERATOR_INTERVAL_MS
+                    )
+
+                    this.enabled = true;
+                },
+                disable() {
+                    this.resetGenerator();
+                    this.enabled = false;
+                },
+                resetGenerator() {
+                    if (this.generator) {
+                        clearInterval(this.generator);
+                        this.generator = null;
+                    }
+                }
             }
         }
+
+        // Expose Alpine to window and start it
+        window.Alpine = Alpine;
+        Alpine.start();
     </script>
   </body>
 </html>
