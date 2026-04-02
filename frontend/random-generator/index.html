@@ -31,12 +31,22 @@
   <body class="bg-light">
     <div class="container py-5" x-data="randomGenerator()" x-cloak>
       <div>
-        <div>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</div>
+        <h3>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</h3>
         <button
                 class="btn btn-primary btn-sm"
                 @click="toggleEnabled()"
                 x-text="enabled ? 'Disable' : 'Enable'"
         ></button>
+      </div>
+
+      <div class="mt-4" x-show="enabled">
+        <h4>Updates:</h4>
+        <ul>
+          <template x-for="message in updateMessages">
+            <li><code x-text="message"></code></li>
+          </template>
+        </ul>
+
       </div>
 
       <!-- Loading State -->
@@ -127,7 +137,7 @@
                     }
 
                     this.stockList = newStockList;
-                    this.updateMessages.push(`Updated ${updatedSymbols.length} symbols: ${updatedSymbols.join(',')}}`);
+                    this.updateMessages.push(`Updated ${updatedSymbols.length} symbols: ${updatedSymbols.join(',')}`);
                 }
             }
         }
