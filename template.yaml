@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Expense Claim Approval System
+Description: Stock Price Streaming application
 
 Parameters:
   Environment:
@@ -8,7 +8,37 @@ Parameters:
     Default: Local
 
 Resources:
-  # S3 Bucket to host single page app website
+  StockPriceEventsApi:
+    Type: AWS::AppSync::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}-StockApi"
+      EventConfig:
+        AuthProviders:
+          - AuthType: API_KEY
+        ConnectionAuthModes:
+          - AuthType: API_KEY
+        DefaultPublishAuthModes:
+          - AuthType: API_KEY
+        DefaultSubscribeAuthModes:
+          - AuthType: API_KEY
+
+  StockNamespace:
+    Type: AWS::AppSync::ChannelNamespace
+    Properties:
+      ApiId: !GetAtt StockPriceEventsApi.ApiId
+      Name: "stocks"
+      PublishAuthModes:
+        - AuthType: API_KEY
+      SubscribeAuthModes:
+        - AuthType: API_KEY
+
+  StockApiKey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId: !GetAtt StockPriceEventsApi.ApiId
+      Description: "Key for frontend stock price subscription"
+
+  # S3 Bucket to host frontend website
   WebSiteBucket:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete
@@ -63,7 +93,7 @@ Resources:
             return request;
         }
 
-  # CloudFront Distribution for hosting the single page app website
+  # CloudFront Distribution for hosting the frontend website
   CloudFrontDistribution:
     Type: "AWS::CloudFront::Distribution"
     Properties:
@@ -123,3 +153,9 @@ Outputs:
   WebS3BucketName:
     Description: "S3 Bucket for hosting web frontend"
     Value: !Ref WebSiteBucket
+  AppSyncApiKey:
+    Description: "API Key for subscribing to stock updates"
+    Value: !GetAtt StockApiKey.ApiKey
+  AppSyncHttpEndpoint:
+    Description: "API Key for subscribing to stock updates"
+    Value: !GetAtt StockPriceEventsApi.Dns.Http
