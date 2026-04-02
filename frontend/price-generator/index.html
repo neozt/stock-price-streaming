@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Market Simulator</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- AG Grid -->
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
     <style>
         [x-cloak] {
@@ -31,7 +27,7 @@
   </head>
 
   <body class="bg-light">
-    <div class="container py-5" x-data="randomGenerator()" x-cloak>
+    <div class="container py-5" x-data="randomGenerator" x-cloak>
       <!-- Generator Dashboard -->
       <div x-show="apiKey">
         <div class="mb-3">
@@ -41,17 +37,18 @@
           <div>
             <h2 class="mb-0">Market Simulator</h2>
             <p class="text-muted mb-0">
-              Status: <span class="badge" :class="enabled ? 'bg-success' : 'bg-secondary'" x-text="enabled ? 'Active' : 'Inactive'"></span>
+              Status: <span class="badge" :class="enabled ? 'bg-success' : 'bg-secondary'"
+                            x-text="enabled ? 'Active' : 'Inactive'"></span>
             </p>
             <div class="text-secondary smaller mt-1" style="font-size: 0.8rem;">
               ℹ️ High-frequency mock data points are generated locally and broadcasted via AppSync.
             </div>
           </div>
           <button
-              class="btn"
-              :class="enabled ? 'btn-outline-danger' : 'btn-success btn-lg'"
-              @click="toggleEnabled()"
-              x-text="enabled ? 'Stop Simulator' : 'Start Simulator'"
+                  class="btn"
+                  :class="enabled ? 'btn-outline-danger' : 'btn-success btn-lg'"
+                  @click="toggleEnabled()"
+                  x-text="enabled ? 'Stop Simulator' : 'Start Simulator'"
           ></button>
         </div>
 
@@ -64,10 +61,14 @@
         <div class="card shadow-sm">
           <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Price Tick Log</h5>
-            <button class="btn btn-sm btn-link text-decoration-none" @click="updateMessages = []" x-show="updateMessages.length > 0">Clear Logs</button>
+            <button class="btn btn-sm btn-link text-decoration-none" @click="updateMessages = []"
+                    x-show="updateMessages.length > 0">Clear Logs
+            </button>
           </div>
           <div class="card-body bg-dark text-light p-3 font-monospace overflow-auto" style="max-height: 200px;">
-            <div x-show="updateMessages.length === 0" class="text-muted small">No activity yet. Start the generator to see real-time updates...</div>
+            <div x-show="updateMessages.length === 0" class="text-muted small">No activity yet. Start the generator to
+              see real-time updates...
+            </div>
             <template x-for="(message, index) in updateMessages.slice().reverse()">
               <div class="mb-1 small">
                 <span class="text-success">>></span>
@@ -85,11 +86,13 @@
             <div class="display-6 mb-2">📊</div>
             <h3 class="card-title">Market Simulator</h3>
             <p class="text-muted mb-2">Enter your AppSync API Key to start broadcasting mock stock price events.</p>
-            <p class="small text-secondary"><em>This tool generates simulated, randomized market data for demonstration purposes only.</em></p>
+            <p class="small text-secondary"><em>This tool generates simulated, randomized market data for demonstration
+              purposes only.</em></p>
           </div>
           <div class="mb-3">
             <label class="form-label" for="apiKeyInput">API Key</label>
-            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput" placeholder="da2-xxxxxxxxxxxxxxxxxxxxxxxxxx" @keyup.enter="setApiKey()" />
+            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput"
+                   placeholder="da2-xxxxxxxxxxxxxxxxxxxxxxxxxx" @keyup.enter="setApiKey()"/>
           </div>
           <button class="btn btn-primary w-100 py-2" @click="setApiKey()">Access Console</button>
         </div>
@@ -110,18 +113,22 @@
 
     </div>
 
-    <script>
+    <script type="module">
+        import {Amplify} from 'https://esm.sh/aws-amplify@6';
+        import {events} from 'https://esm.sh/aws-amplify@6/api';
+        import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.8/dist/module.esm.js';
+
         // Initialize AG Grid
         const gridOptions = {
             rowData: [],
             getRowId: (params) => params.data.symbol,
             columnDefs: [
-                { field: 'symbol', headerName: 'Symbol', minWidth: 100 },
-                { field: 'lastPrice', headerName: 'Last Price' },
-                { field: 'askPrice', headerName: 'Ask Price' },
-                { field: 'bidPrice', headerName: 'Bid Price' },
-                { field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc' },
-                { field: 'marketCap', headerName: 'Market Cap' },
+                {field: 'symbol', headerName: 'Symbol', minWidth: 100},
+                {field: 'lastPrice', headerName: 'Last Price'},
+                {field: 'askPrice', headerName: 'Ask Price'},
+                {field: 'bidPrice', headerName: 'Bid Price'},
+                {field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc'},
+                {field: 'marketCap', headerName: 'Market Cap'},
             ],
             defaultColDef: {
                 flex: 1,
@@ -130,143 +137,165 @@
             }
         };
 
-        function randomGenerator() {
-            const GENERATOR_INTERVAL_MS = 1000;
-            const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
+        Alpine.data('randomGenerator', function () {
+                const GENERATOR_INTERVAL_MS = 1000;
+                const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
+                const CHANNEL = 'stocks/top-volume-30';
 
-            return {
-                gridApi: null,
-                apiKey: null,
-                apiKeyInput: '',
-                enabled: false,
-                generator: null,
-                stockList: [],
-                updateMessages: [],
-                loading: false,
-                error: null,
-                setApiKey() {
-                    const key = (this.apiKeyInput ?? '').trim();
-                    if (!key) return;
-                    this.apiKey = key;
-                    console.log("Using API Key: " + this.apiKey);
-                    this.apiKeyInput = '';
-                    
-                    setTimeout(() => {
-                        this.initGrid();
-                    }, 50);
-                },
-                initGrid() {
-                    if (this.gridApi) return;
-                    const priceTableElement = document.querySelector('#priceTable');
-                    this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
-                },
-                toggleEnabled() {
-                    if (this.enabled) {
-                        this.disable();
-                    } else {
-                        this.enable()
-                    }
-                },
-                enable() {
-                    this.resetGenerator();
-                    this.stockList = getRandomStocks();
-                    this.updateMessages = [];
-                    this.generator = setInterval(
-                        () => {
-                            this.randomisePrice();
-                            this.updatePriceTable(this.stockList);
-                            this.publishPrice();
-                        },
-                        GENERATOR_INTERVAL_MS
-                    );
+                return {
+                    gridApi: null,
+                    apiKey: null,
+                    apiKeyInput: '',
+                    enabled: false,
+                    generator: null,
+                    stockList: [],
+                    updateMessages: [],
+                    loading: false,
+                    error: null,
 
-                    this.enabled = true;
-                },
-                disable() {
-                    this.resetGenerator();
-                    this.enabled = false;
-                },
-                resetGenerator() {
-                    if (this.generator) {
-                        clearInterval(this.generator);
-                        this.generator = null;
-                    }
-                },
-                randomisePrice() {
-                    const STOCK_UPDATE_CHANCE = 0.7;
-                    const PROP_UPDATE_CHANCE = 0.5;
-                    const VOLATILITY = 0.005;
+                    setApiKey() {
+                        const key = (this.apiKeyInput ?? '').trim();
+                        if (!key) return;
+                        this.apiKey = key;
+                        console.log("Using API Key: " + this.apiKey);
+                        this.apiKeyInput = '';
 
-                    const newStockList = [];
-                    const updatedSymbols = [];
-
-                    for (const stock of this.stockList) {
-                        // Determine if we should update this stock in this tick
-                        if (Math.random() > STOCK_UPDATE_CHANCE) {
-                            newStockList.push(stock);
-                            continue;
-                        }
-
-                        const newStock = {...stock};
-
-                        const priceProps = ['lastPrice', 'askPrice', 'bidPrice'];
-
-                        priceProps.forEach(prop => {
-                            if (Math.random() <= PROP_UPDATE_CHANCE) {
-                                // Update price fields
-                                const changePercent = gaussianRandom(0, VOLATILITY);
-                                newStock[prop] = Math.max(0, newStock[prop] * (1 + changePercent)); // Ensure value doesn't drop below 0
+                        // Configure Amplify
+                        const region = APP_SYNC_HTTP_ENDPOINT.split('.')[2] || 'us-east-1';
+                        Amplify.configure({
+                            API: {
+                                Events: {
+                                    endpoint: `https://${APP_SYNC_HTTP_ENDPOINT}/event`,
+                                    region: region,
+                                    defaultAuthMode: 'apiKey',
+                                    apiKey: this.apiKey
+                                }
                             }
                         });
 
-                        if (Math.random() <= PROP_UPDATE_CHANCE) {
-                            // Update volume
-                            const changePercent = gaussianRandom(0, 0.06); // Volume is more volatile
-                            newStock.volume = Math.max(0, newStock.volume * (1 + changePercent)); // Ensure value doesn't drop below 0
+                        setTimeout(() => {
+                            this.initGrid();
+                        }, 50);
+                    },
+
+                    initGrid() {
+                        if (this.gridApi) return;
+                        const priceTableElement = document.querySelector('#priceTable');
+                        this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
+                    },
+
+                    toggleEnabled() {
+                        if (this.enabled) {
+                            this.disable();
+                        } else {
+                            this.enable()
+                        }
+                    },
+
+                    enable() {
+                        this.resetGenerator();
+                        this.stockList = getRandomStocks();
+                        this.updateMessages = [];
+                        this.generator = setInterval(
+                            () => {
+                                this.randomisePrice();
+                                this.updatePriceTable(this.stockList);
+                                this.publishPrice();
+                            },
+                            GENERATOR_INTERVAL_MS
+                        );
+
+                        this.enabled = true;
+                    },
+
+                    disable() {
+                        this.resetGenerator();
+                        this.enabled = false;
+                    },
+
+                    resetGenerator() {
+                        if (this.generator) {
+                            clearInterval(this.generator);
+                            this.generator = null;
+                        }
+                    },
+
+                    randomisePrice() {
+                        const STOCK_UPDATE_CHANCE = 0.7;
+                        const PROP_UPDATE_CHANCE = 0.5;
+                        const VOLATILITY = 0.005;
+
+                        const newStockList = [];
+                        const updatedSymbols = [];
+
+                        for (const stock of this.stockList) {
+                            // Determine if we should update this stock in this tick
+                            if (Math.random() > STOCK_UPDATE_CHANCE) {
+                                newStockList.push(stock);
+                                continue;
+                            }
+
+                            const newStock = {...stock};
+
+                            const priceProps = ['lastPrice', 'askPrice', 'bidPrice'];
+
+                            priceProps.forEach(prop => {
+                                if (Math.random() <= PROP_UPDATE_CHANCE) {
+                                    // Update price fields
+                                    const changePercent = gaussianRandom(0, VOLATILITY);
+                                    newStock[prop] = Math.max(0, newStock[prop] * (1 + changePercent)); // Ensure value doesn't drop below 0
+                                }
+                            });
+
+                            if (Math.random() <= PROP_UPDATE_CHANCE) {
+                                // Update volume
+                                const changePercent = gaussianRandom(0, 0.06); // Volume is more volatile
+                                newStock.volume = Math.max(0, newStock.volume * (1 + changePercent)); // Ensure value doesn't drop below 0
+                            }
+
+                            updatedSymbols.push(newStock.symbol);
+                            newStockList.push(newStock);
                         }
 
-                        updatedSymbols.push(newStock.symbol);
-                        newStockList.push(newStock);
-                    }
+                        this.stockList = newStockList;
+                        const message = `Published update for ${updatedSymbols.length} tickers at ${new Date().toLocaleTimeString()}`;
+                        console.log(message);
+                        this.updateMessages.push(message);
 
-                    this.stockList = newStockList;
-                    const message = `Published update for ${updatedSymbols.length} tickers at ${new Date().toLocaleTimeString()}`;
-                    console.log(message);
-                    this.updateMessages.push(message);
-                    
-                    // Keep logs manageable
-                    if (this.updateMessages.length > 50) {
-                        this.updateMessages.shift();
-                    }
-                },
-                async publishPrice() {
-                    const top30ByVolume = sortByVolume(this.stockList).slice(0, 30);
-                    try {
-                        const event = {type: 'update', updatedAt: new Date().toISOString(), data: top30ByVolume}
-                        await fetch(`https://${APP_SYNC_HTTP_ENDPOINT}/event`, {
-                            method: "POST",
-                            headers: {
-                                "content-type": "application/json",
-                                "x-api-key": this.apiKey
-                            },
-                            body: JSON.stringify({
-                                "channel": "stocks/top-volume-30",
-                                "events": [JSON.stringify(event)]
-                            }),
-                        });
-                    } catch (e) {
-                        console.error("Failed to publish price update", e);
-                        this.error = "Publishing failed. Please check your API key and connection.";
-                        this.disable();
-                    }
-                },
-                updatePriceTable(stockList) {
-                    if (this.gridApi) {
-                        this.gridApi.setGridOption("rowData", stockList);
+                        // Keep logs manageable
+                        if (this.updateMessages.length > 50) {
+                            this.updateMessages.shift();
+                        }
+                    },
+
+                    async publishPrice() {
+                        const top30ByVolume = sortByVolume(this.stockList).slice(0, 30);
+                        try {
+                            const payload = {
+                                type: 'update',
+                                updatedAt: new Date().toISOString(),
+                                data: top30ByVolume
+                            };
+
+                            await events.post(CHANNEL, payload);
+                        } catch (e) {
+                            console.error("Failed to publish price update", e);
+                            this.error = "Publishing failed: " + (e.message || JSON.stringify(e));
+                            this.disable();
+                        }
+                    },
+
+                    updatePriceTable(stockList) {
+                        if (this.gridApi) {
+                            this.gridApi.setGridOption("rowData", stockList);
+                        }
                     }
                 }
             }
-        }
+        );
+
+        window.Alpine = Alpine;
+        Alpine.start();
 
         /**
          * Generates a random number following a normal distribution.
