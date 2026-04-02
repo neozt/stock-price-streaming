@@ -118,25 +118,6 @@
         import {events} from 'https://esm.sh/aws-amplify@6/api';
         import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.8/dist/module.esm.js';
 
-        // Initialize AG Grid
-        const gridOptions = {
-            rowData: [],
-            getRowId: (params) => params.data.symbol,
-            columnDefs: [
-                {field: 'symbol', headerName: 'Symbol', minWidth: 100},
-                {field: 'lastPrice', headerName: 'Last Price'},
-                {field: 'askPrice', headerName: 'Ask Price'},
-                {field: 'bidPrice', headerName: 'Bid Price'},
-                {field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc'},
-                {field: 'marketCap', headerName: 'Market Cap'},
-            ],
-            defaultColDef: {
-                flex: 1,
-                sortable: true,
-                resizable: true
-            }
-        };
-
         Alpine.data('randomGenerator', function () {
                 const GENERATOR_INTERVAL_MS = 1000;
                 const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
@@ -179,7 +160,27 @@
                     },
 
                     initGrid() {
-                        if (this.gridApi) return;
+                        if (this.gridApi) {
+                            return;
+                        }
+
+                        const gridOptions = {
+                            rowData: [],
+                            getRowId: (params) => params.data.symbol,
+                            columnDefs: [
+                                {field: 'symbol', headerName: 'Symbol', minWidth: 100},
+                                {field: 'lastPrice', headerName: 'Last Price'},
+                                {field: 'askPrice', headerName: 'Ask Price'},
+                                {field: 'bidPrice', headerName: 'Bid Price'},
+                                {field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc'},
+                                {field: 'marketCap', headerName: 'Market Cap'},
+                            ],
+                            defaultColDef: {
+                                flex: 1,
+                                sortable: true,
+                                resizable: true
+                            }
+                        };
                         const priceTableElement = document.querySelector('#priceTable');
                         this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
                     },
