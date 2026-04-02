@@ -63,7 +63,7 @@
             <h5 class="mb-0">Price Tick Log</h5>
             <button class="btn btn-sm btn-link text-decoration-none" @click="updateMessages = []" x-show="updateMessages.length > 0">Clear Logs</button>
           </div>
-          <div class="card-body bg-dark text-light p-3 font-monospace overflow-auto" style="max-height: 250px;">
+          <div class="card-body bg-dark text-light p-3 font-monospace overflow-auto" style="max-height: 200px;">
             <div x-show="updateMessages.length === 0" class="text-muted small">No activity yet. Start the generator to see real-time updates...</div>
             <template x-for="(message, index) in updateMessages.slice().reverse()">
               <div class="mb-1 small">
