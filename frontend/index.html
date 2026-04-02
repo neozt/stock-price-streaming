@@ -31,19 +31,41 @@
   <body class="bg-light">
     <div class="container py-5" x-data="stockPriceStreamer()" x-cloak>
 
+      <!-- Streaming Dashboard -->
       <div x-show="apiKey">
-        <h3>Top 30 Stocks By Volume:</h3>
-        <div id="priceTable" class="mt-2" style="height: 500px; width: 100%;"></div>
+        <div class="mb-3">
+          <a href="price-generator/index.html" class="text-decoration-none text-secondary small">Go to Price Generator &rarr;</a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="mb-0">Stock Price Streamer</h2>
+            <p class="text-muted mb-0">
+              Connection: <span class="badge" :class="connected ? 'bg-success' : 'bg-secondary'" x-text="connected ? 'Connected' : 'Disconnected'"></span>
+            </p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div id="priceTable" class="ag-theme-quartz" style="height: 500px; width: 100%;"></div>
+          </div>
+        </div>
+
       </div>
 
+      <!-- Connection Screen -->
       <div x-show="!apiKey">
-        <div class="card p-4 shadow-sm" style="max-width: 400px; margin: auto;">
-          <h5 class="mb-3">Connect to AppSync</h5>
+        <div class="card p-4 shadow-sm" style="max-width: 500px; margin: auto;">
+          <div class="text-center mb-4">
+            <div class="display-6 mb-2">📡</div>
+            <h3 class="card-title">Stock Price Streamer</h3>
+            <p class="text-muted">Enter your AppSync API Key to subscribe to the real-time stock price feed.</p>
+          </div>
           <div class="mb-3">
             <label class="form-label" for="apiKeyInput">API Key</label>
-            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput" placeholder="Enter API Key" @keyup.enter="setApiKey()" />
+            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput" placeholder="da2-xxxxxxxxxxxxxxxxxxxxxxxxxx" @keyup.enter="setApiKey()" />
           </div>
-          <button class="btn btn-primary w-100" @click="setApiKey()">Connect Stream</button>
+          <button class="btn btn-primary w-100 py-2" @click="setApiKey()">Initialize Stream</button>
         </div>
       </div>
 
@@ -74,6 +96,7 @@
                 loading: false,
                 error: null,
                 ws: null,
+                connected: false,
                 gridApi: null,
 
                 setApiKey() {
@@ -106,8 +129,12 @@
                             { field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc' },
                             { field: 'marketCap', headerName: 'Market Cap' },
                         ],
-                        defaultColDef: { flex: 1, sortable: true }
-                    };
+                         defaultColDef: {
+                             flex: 1,
+                             sortable: true,
+                             resizable: true
+                         }
+                     };
 
                     this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
                 },
@@ -158,6 +185,7 @@
                             }));
                         } else if (msg.type === 'subscribe_success') {
                             this.loading = false;
+                            this.connected = true;
                         } else if (msg.type === 'data') {
                             // 3. Process and map the Real-Time Event Data
                             this.processData(msg);
@@ -172,6 +200,7 @@
                     this.ws.onerror = (err) => {
                         this.error = 'WebSocket Connection Error';
                         this.loading = false;
+                        this.connected = false;
                     };
 
                     this.ws.onclose = (event) => {
@@ -179,6 +208,7 @@
                             this.error = 'WebSocket connection was dropped.';
                         }
                         this.loading = false;
+                        this.connected = false;
                     };
                 },
 
