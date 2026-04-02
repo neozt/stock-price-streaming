@@ -32,26 +32,36 @@
 
   <body class="bg-light">
     <div class="container py-5" x-data="randomGenerator()" x-cloak>
-      <div>
-        <h3>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</h3>
-        <button
-                class="btn btn-primary btn-sm"
-                @click="toggleEnabled()"
-                x-text="enabled ? 'Disable' : 'Enable'"
-        ></button>
+      <div x-show="apiKey">
+        <div>
+          <h3>Random Price Generator is <span x-text="enabled ? 'turned on' : 'turned off'"></span>.</h3>
+          <button
+                  class="btn btn-primary btn-sm"
+                  @click="toggleEnabled()"
+                  x-text="enabled ? 'Disable' : 'Enable'"
+          ></button>
+        </div>
+
+        <div id="priceTable" class="mt-2" style="height: 500px"></div>
+
+        <div class="mt-4">
+          <h4>Updates:</h4>
+          <ul>
+            <template x-for="message in updateMessages">
+              <li><code x-text="message"></code></li>
+            </template>
+          </ul>
+
+        </div>
       </div>
 
-      <div id="priceTable" class="mt-2" style="height: 500px"></div>
-
-      <div class="mt-4" x-show="enabled">
-        <h4>Updates:</h4>
-        <ul>
-          <template x-for="message in updateMessages">
-            <li><code x-text="message"></code></li>
-          </template>
-        </ul>
-
+      <div x-show="!apiKey">
+        <div>
+          <label>API Key:<input type="text" x-model="apiKeyInput" /></label>
+          <button class="btn btn-primary btn-sm" @click="setApiKey()">Enter</button>
+        </div>
       </div>
+
 
       <!-- Loading State -->
       <div class="loading-overlay" x-show="loading">
@@ -88,8 +98,11 @@
 
         function randomGenerator() {
             const GENERATOR_INTERVAL_MS = 1000;
+            const APP_SYNC_URL = 'https://4kkb5krso5dydp7kx6lzulqiym.appsync-api.ap-southeast-1.amazonaws.com'; // TODO parameterize this
 
             return {
+                apiKey: null,
+                apiKeyInput: '',
                 enabled: false,
                 generator: null,
                 stockList: [],
@@ -97,6 +110,11 @@
                 loading: false,
                 error: null,
                 apiUrl: '${ClaimsApiUrl}',
+                setApiKey() {
+                    this.apiKey = this.apiKeyInput ?? '';
+                    console.log("Using API Key: " + this.apiKey);
+                    this.apiKeyInput = '';
+                },
                 toggleEnabled() {
                     if (this.enabled) {
                         this.disable();
@@ -112,6 +130,7 @@
                         () => {
                             this.randomisePrice();
                             this.updatePriceTable(this.stockList);
+                            this.publishPrice();
                         },
                         GENERATOR_INTERVAL_MS
                     );
@@ -169,6 +188,20 @@
                     const message = `Updated ${updatedSymbols.length} symbols: ${updatedSymbols.join(',')}`
                     console.log(message);
                     this.updateMessages.push(message);
+                },
+                async publishPrice() {
+                    const top30ByVolume = this.stockList.slice(0, 30);
+                    await fetch(`${APP_SYNC_URL}/event`, {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json",
+                            "x-api-key": this.apiKey
+                        },
+                        body: JSON.stringify({
+                            "channel": "stocks/top-volume-30",
+                            "events": [JSON.stringify(top30ByVolume)]
+                        }),
+                    })
                 },
                 updatePriceTable(stockList) {
                     gridApi.setGridOption("rowData", stockList);
