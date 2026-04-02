@@ -34,7 +34,7 @@
       <!-- Streaming Dashboard -->
       <div x-show="apiKey">
         <div class="mb-3">
-          <a href="price-generator/index.html" class="text-decoration-none text-secondary small">
+          <a href="/price-generator" class="text-decoration-none text-secondary small">
             Go to Price Generator &rarr;
           </a>
         </div>
@@ -94,8 +94,8 @@
     <script>
         function stockPriceStreamer() {
             // Derived dynamically to maintain alignment with HTTP domains in AppSync
-            const HTTP_DOMAIN = '4kkb5krso5dydp7kx6lzulqiym.appsync-api.ap-southeast-1.amazonaws.com';
-            const REALTIME_DOMAIN = '4kkb5krso5dydp7kx6lzulqiym.appsync-realtime-api.ap-southeast-1.amazonaws.com';
+            const APP_SYNC_HTTP_ENDPOINT = '${AppSyncHttpEndpoint}';
+            const APP_SYNC_REALTIME_ENDPOINT = '${AppSyncRealtimeEndpoint}';
             const CHANNEL = '/stocks/top-volume-30';
 
             return {
@@ -173,7 +173,7 @@
 
                     const auth = {
                         'x-api-key': this.apiKey,
-                        host: HTTP_DOMAIN
+                        host: APP_SYNC_HTTP_ENDPOINT
                     };
 
                     // AWS requires the authorization object to be formatted in Base64URL and appended as a protocol
@@ -184,7 +184,7 @@
 
                     try {
                         this.ws = new WebSocket(
-                            `wss://${REALTIME_DOMAIN}/event/realtime`,
+                            `wss://${APP_SYNC_REALTIME_ENDPOINT}/event/realtime`,
                             ['aws-appsync-event-ws', `header-${encodedAuth}`]
                         );
                     } catch (e) {

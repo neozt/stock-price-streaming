@@ -35,7 +35,7 @@
       <!-- Generator Dashboard -->
       <div x-show="apiKey">
         <div class="mb-3">
-          <a href="../index.html" class="text-decoration-none text-secondary small">&larr; Back to Streaming Dashboard</a>
+          <a href="/" class="text-decoration-none text-secondary small">&larr; Back to Streaming Dashboard</a>
         </div>
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
@@ -128,7 +128,7 @@
 
         function randomGenerator() {
             const GENERATOR_INTERVAL_MS = 1000;
-            const APP_SYNC_URL = 'https://4kkb5krso5dydp7kx6lzulqiym.appsync-api.ap-southeast-1.amazonaws.com'; // TODO parameterize this
+            const APP_SYNC_HTTP_ENDPOINT = '${AppSyncHttpEndpoint}';
 
             return {
                 gridApi: null,
@@ -239,7 +239,7 @@
                     const top30ByVolume = sortByVolume(this.stockList).slice(0, 30);
                     try {
                         const event = {type: 'update', updatedAt: new Date().toISOString(), data: top30ByVolume}
-                        await fetch(`${APP_SYNC_URL}/event`, {
+                        await fetch(`https://${APP_SYNC_HTTP_ENDPOINT}/event`, {
                             method: "POST",
                             headers: {
                                 "content-type": "application/json",
