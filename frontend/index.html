@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Stock Price Streaming</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+
     <style>
         [x-cloak] {
             display: none !important;
@@ -29,11 +29,23 @@
   </head>
 
   <body class="bg-light">
-    <div class="container py-5" x-data="randomGenerator()" x-cloak>
-<!--      <div class="d-flex justify-content-between align-items-center mb-4">-->
-<!--        <h1 class="h3">Pending Claims Approval</h1>-->
-<!--        <button class="btn btn-outline-primary btn-sm" @click="fetchClaims()">Refresh List</button>-->
-<!--      </div>-->
+    <div class="container py-5" x-data="stockPriceStreamer()" x-cloak>
+
+      <div x-show="apiKey">
+        <h3>Top 30 Stocks By Volume:</h3>
+        <div id="priceTable" class="ag-theme-alpine mt-2" style="height: 500px; width: 100%;"></div>
+      </div>
+
+      <div x-show="!apiKey">
+        <div class="card p-4 shadow-sm" style="max-width: 400px; margin: auto;">
+          <h5 class="mb-3">Connect to AppSync</h5>
+          <div class="mb-3">
+            <label class="form-label" for="apiKeyInput">API Key</label>
+            <input id="apiKeyInput" type="text" class="form-control" x-model="apiKeyInput" placeholder="Enter API Key" @keyup.enter="setApiKey()" />
+          </div>
+          <button class="btn btn-primary w-100" @click="setApiKey()">Connect Stream</button>
+        </div>
+      </div>
 
       <!-- Loading State -->
       <div class="loading-overlay" x-show="loading">
@@ -50,12 +62,137 @@
     </div>
 
     <script>
-        function randomGenerator() {
+        function stockPriceStreamer() {
+            // Derived dynamically to maintain alignment with HTTP domains in AppSync
+            const HTTP_DOMAIN = '4kkb5krso5dydp7kx6lzulqiym.appsync-api.ap-southeast-1.amazonaws.com';
+            const REALTIME_DOMAIN = '4kkb5krso5dydp7kx6lzulqiym.appsync-realtime-api.ap-southeast-1.amazonaws.com';
+            const CHANNEL = '/stocks/top-volume-30';
+
             return {
+                apiKey: null,
+                apiKeyInput: '',
                 loading: false,
                 error: null,
-                apiUrl: '${ClaimsApiUrl}',
+                ws: null,
+                gridApi: null,
 
+                setApiKey() {
+                    if (!this.apiKeyInput) {
+                        return;
+                    }
+                    this.apiKey = this.apiKeyInput;
+                    this.apiKeyInput = '';
+
+                    // Minor timeout forces DOM update prior to mounting AG Grid ensuring accurate column sizes
+                    setTimeout(() => {
+                        this.initGrid();
+                    }, 50);
+
+                    this.connectWebSocket();
+                },
+
+                initGrid() {
+                    if (this.gridApi) return;
+
+                    const priceTableElement = document.querySelector('#priceTable');
+                    const gridOptions = {
+                        rowData: [],
+                        getRowId: (params) => params.data.symbol, // Optimized for applyTransaction logic updates
+                        columnDefs: [
+                            { field: 'symbol', headerName: 'Symbol', minWidth: 100 },
+                            { field: 'lastPrice', headerName: 'Last Price' },
+                            { field: 'askPrice', headerName: 'Ask Price' },
+                            { field: 'bidPrice', headerName: 'Bid Price' },
+                            { field: 'volume', headerName: 'Volume' },
+                            { field: 'marketCap', headerName: 'Market Cap' },
+                        ],
+                        defaultColDef: { flex: 1, sortable: true }
+                    };
+
+                    this.gridApi = agGrid.createGrid(priceTableElement, gridOptions);
+                },
+
+                connectWebSocket() {
+                    this.loading = true;
+                    this.error = null;
+
+                    const auth = {
+                        'x-api-key': this.apiKey,
+                        host: HTTP_DOMAIN
+                    };
+
+                    // AWS requires the authorization object to be formatted in Base64URL and appended as a protocol
+                    const encodedAuth = btoa(JSON.stringify(auth))
+                        .replace(/\+/g, '-')
+                        .replace(/\//g, '_')
+                        .replace(/=+$/, '');
+
+                    try {
+                        this.ws = new WebSocket(
+                            `wss://${REALTIME_DOMAIN}/event/realtime`,
+                            ['aws-appsync-event-ws', `header-${encodedAuth}`]
+                        );
+                    } catch (e) {
+                        this.error = 'Failed to create WebSocket: ' + e.message;
+                        this.loading = false;
+                        return;
+                    }
+
+                    this.ws.onopen = () => {
+                        // 1. Initial Handshake Request
+                        this.ws.send(JSON.stringify({ type: 'connection_init' }));
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        const msg = JSON.parse(event.data);
+
+                        if (msg.type === 'connection_ack') {
+                            const subId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+
+                            // 2. Subscribe to the specific channel
+                            this.ws.send(JSON.stringify({
+                                type: 'subscribe',
+                                id: subId,
+                                channel: CHANNEL,
+                                authorization: auth
+                            }));
+                        } else if (msg.type === 'subscribe_success') {
+                            this.loading = false;
+                        } else if (msg.type === 'data') {
+                            // 3. Process and map the Real-Time Event Data
+                            this.processData(msg);
+                        } else if (msg.type === 'ka') {
+                            // Automatically received AppSync Keep-Alive pings -> intentionally ignore
+                        } else if (msg.type === 'error') {
+                            this.error = "AppSync Error: " + JSON.stringify(msg.payload || msg);
+                            this.loading = false;
+                        }
+                    };
+
+                    this.ws.onerror = (err) => {
+                        this.error = 'WebSocket Connection Error';
+                        this.loading = false;
+                    };
+
+                    this.ws.onclose = (event) => {
+                        if (!event.wasClean) {
+                            this.error = 'WebSocket connection was dropped.';
+                        }
+                        this.loading = false;
+                    };
+                },
+
+                processData(msg) {
+                    try {
+                        let eventPayload = msg.event;
+                        if (typeof eventPayload === 'string') {
+                            eventPayload = JSON.parse(eventPayload);
+                        }
+                        this.gridApi.setGridOption("rowData", eventPayload);
+                    } catch (e) {
+                        console.error("Error parsing streaming event data", e, msg);
+                    }
+                }
             }
         }
     </script>

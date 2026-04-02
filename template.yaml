@@ -159,3 +159,6 @@ Outputs:
   AppSyncHttpEndpoint:
     Description: "API Key for subscribing to stock updates"
     Value: !GetAtt StockPriceEventsApi.Dns.Http
+  AppSyncRealtimeEndpoint:
+    Description: "API Key for subscribing to stock updates"
+    Value: !GetAtt StockPriceEventsApi.Dns.Realtime
