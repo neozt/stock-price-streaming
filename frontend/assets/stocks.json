@@ -1,0 +1,502 @@
+[
+    {
+        "name": "NVIDIA Corporation",
+        "symbol": "NVDA",
+        "market": "NASDAQ",
+        "lastPrice": 175.75,
+        "askPrice": 175.80,
+        "bidPrice": 175.70,
+        "volume": 168130000,
+        "marketCap": 4270000000000
+    },
+    {
+        "name": "Apple Inc.",
+        "symbol": "AAPL",
+        "market": "NASDAQ",
+        "lastPrice": 255.63,
+        "askPrice": 255.70,
+        "bidPrice": 255.55,
+        "volume": 40060000,
+        "marketCap": 3750000000000
+    },
+    {
+        "name": "Alphabet Inc. (Class A)",
+        "symbol": "GOOGL",
+        "market": "NASDAQ",
+        "lastPrice": 297.48,
+        "askPrice": 297.55,
+        "bidPrice": 297.40,
+        "volume": 24400000,
+        "marketCap": 3470000000000
+    },
+    {
+        "name": "Microsoft Corporation",
+        "symbol": "MSFT",
+        "market": "NASDAQ",
+        "lastPrice": 369.37,
+        "askPrice": 369.45,
+        "bidPrice": 369.30,
+        "volume": 29410000,
+        "marketCap": 2740000000000
+    },
+    {
+        "name": "Amazon.com, Inc.",
+        "symbol": "AMZN",
+        "market": "NASDAQ",
+        "lastPrice": 210.57,
+        "askPrice": 210.65,
+        "bidPrice": 210.50,
+        "volume": 45950000,
+        "marketCap": 2260000000000
+    },
+    {
+        "name": "Broadcom Inc.",
+        "symbol": "AVGO",
+        "market": "NASDAQ",
+        "lastPrice": 313.49,
+        "askPrice": 313.60,
+        "bidPrice": 313.40,
+        "volume": 19170000,
+        "marketCap": 1480000000000
+    },
+    {
+        "name": "Tesla, Inc.",
+        "symbol": "TSLA",
+        "market": "NASDAQ",
+        "lastPrice": 381.26,
+        "askPrice": 381.40,
+        "bidPrice": 381.10,
+        "volume": 58680000,
+        "marketCap": 1430000000000
+    },
+    {
+        "name": "Meta Platforms, Inc.",
+        "symbol": "META",
+        "market": "NASDAQ",
+        "lastPrice": 579.23,
+        "askPrice": 579.40,
+        "bidPrice": 579.10,
+        "volume": 23610000,
+        "marketCap": 1270000000000
+    },
+    {
+        "name": "Berkshire Hathaway Inc. (B)",
+        "symbol": "BRK.B",
+        "market": "NYSE",
+        "lastPrice": 478.54,
+        "askPrice": 478.65,
+        "bidPrice": 478.45,
+        "volume": 3200000,
+        "marketCap": 1030000000000
+    },
+    {
+        "name": "Walmart Inc.",
+        "symbol": "WMT",
+        "market": "NYSE",
+        "lastPrice": 124.74,
+        "askPrice": 124.80,
+        "bidPrice": 124.70,
+        "volume": 17040000,
+        "marketCap": 994480000000
+    },
+    {
+        "name": "Eli Lilly and Company",
+        "symbol": "LLY",
+        "market": "NYSE",
+        "lastPrice": 954.52,
+        "askPrice": 954.80,
+        "bidPrice": 954.20,
+        "volume": 6270000,
+        "marketCap": 901850000000
+    },
+    {
+        "name": "JPMorgan Chase & Co.",
+        "symbol": "JPM",
+        "market": "NYSE",
+        "lastPrice": 295.38,
+        "askPrice": 295.50,
+        "bidPrice": 295.25,
+        "volume": 11270000,
+        "marketCap": 796650000000
+    },
+    {
+        "name": "Exxon Mobil Corporation",
+        "symbol": "XOM",
+        "market": "NYSE",
+        "lastPrice": 160.78,
+        "askPrice": 160.90,
+        "bidPrice": 160.65,
+        "volume": 37930000,
+        "marketCap": 669930000000
+    },
+    {
+        "name": "Johnson & Johnson",
+        "symbol": "JNJ",
+        "market": "NYSE",
+        "lastPrice": 244.12,
+        "askPrice": 244.25,
+        "bidPrice": 244.00,
+        "volume": 6310000,
+        "marketCap": 588300000000
+    },
+    {
+        "name": "Visa Inc.",
+        "symbol": "V",
+        "market": "NYSE",
+        "lastPrice": 298.51,
+        "askPrice": 298.65,
+        "bidPrice": 298.40,
+        "volume": 7710000,
+        "marketCap": 501820000000
+    },
+    {
+        "name": "Costco Wholesale Corp.",
+        "symbol": "COST",
+        "market": "NASDAQ",
+        "lastPrice": 996.56,
+        "askPrice": 996.80,
+        "bidPrice": 996.30,
+        "volume": 1770000,
+        "marketCap": 442130000000
+    },
+    {
+        "name": "Mastercard Incorporated",
+        "symbol": "MA",
+        "market": "NYSE",
+        "lastPrice": 491.65,
+        "askPrice": 491.80,
+        "bidPrice": 491.50,
+        "volume": 4610000,
+        "marketCap": 435220000000
+    },
+    {
+        "name": "Oracle Corporation",
+        "symbol": "ORCL",
+        "market": "NYSE",
+        "lastPrice": 145.23,
+        "askPrice": 145.30,
+        "bidPrice": 145.15,
+        "volume": 20500000,
+        "marketCap": 417690000000
+    },
+    {
+        "name": "Micron Technology, Inc.",
+        "symbol": "MU",
+        "market": "NASDAQ",
+        "lastPrice": 367.85,
+        "askPrice": 368.00,
+        "bidPrice": 367.70,
+        "volume": 74430000,
+        "marketCap": 414840000000
+    },
+    {
+        "name": "Netflix, Inc.",
+        "symbol": "NFLX",
+        "market": "NASDAQ",
+        "lastPrice": 95.55,
+        "askPrice": 95.65,
+        "bidPrice": 95.45,
+        "volume": 30440000,
+        "marketCap": 403430000000
+    },
+    {
+        "name": "Chevron Corporation",
+        "symbol": "CVX",
+        "market": "NYSE",
+        "lastPrice": 197.41,
+        "askPrice": 197.60,
+        "bidPrice": 197.25,
+        "volume": 23050000,
+        "marketCap": 393910000000
+    },
+    {
+        "name": "AbbVie Inc.",
+        "symbol": "ABBV",
+        "market": "NYSE",
+        "lastPrice": 214.98,
+        "askPrice": 215.10,
+        "bidPrice": 214.85,
+        "volume": 5700000,
+        "marketCap": 380120000000
+    },
+    {
+        "name": "Bank of America Corp.",
+        "symbol": "BAC",
+        "market": "NYSE",
+        "lastPrice": 49.27,
+        "askPrice": 49.32,
+        "bidPrice": 49.22,
+        "volume": 32950000,
+        "marketCap": 353600000000
+    },
+    {
+        "name": "Advanced Micro Devices",
+        "symbol": "AMD",
+        "market": "NASDAQ",
+        "lastPrice": 210.21,
+        "askPrice": 210.35,
+        "bidPrice": 210.10,
+        "volume": 40830000,
+        "marketCap": 342730000000
+    },
+    {
+        "name": "Caterpillar Inc.",
+        "symbol": "CAT",
+        "market": "NYSE",
+        "lastPrice": 730.32,
+        "askPrice": 730.60,
+        "bidPrice": 730.00,
+        "volume": 2440000,
+        "marketCap": 339810000000
+    },
+    {
+        "name": "Palantir Technologies",
+        "symbol": "PLTR",
+        "market": "NYSE",
+        "lastPrice": 146.49,
+        "askPrice": 146.55,
+        "bidPrice": 146.40,
+        "volume": 34170000,
+        "marketCap": 335680000000
+    },
+    {
+        "name": "Procter & Gamble Co.",
+        "symbol": "PG",
+        "market": "NYSE",
+        "lastPrice": 144.09,
+        "askPrice": 144.15,
+        "bidPrice": 144.00,
+        "volume": 8060000,
+        "marketCap": 334870000000
+    },
+    {
+        "name": "The Home Depot, Inc.",
+        "symbol": "HD",
+        "market": "NYSE",
+        "lastPrice": 329.56,
+        "askPrice": 329.70,
+        "bidPrice": 329.40,
+        "volume": 3390000,
+        "marketCap": 328250000000
+    },
+    {
+        "name": "The Coca-Cola Company",
+        "symbol": "KO",
+        "market": "NYSE",
+        "lastPrice": 76.08,
+        "askPrice": 76.12,
+        "bidPrice": 76.04,
+        "volume": 15830000,
+        "marketCap": 327200000000
+    },
+    {
+        "name": "Cisco Systems, Inc.",
+        "symbol": "CSCO",
+        "market": "NASDAQ",
+        "lastPrice": 77.93,
+        "askPrice": 77.98,
+        "bidPrice": 77.88,
+        "volume": 21310000,
+        "marketCap": 307810000000
+    },
+    {
+        "name": "GE Aerospace",
+        "symbol": "GE",
+        "market": "NYSE",
+        "lastPrice": 292.68,
+        "askPrice": 292.85,
+        "bidPrice": 292.50,
+        "volume": 5240000,
+        "marketCap": 306970000000
+    },
+    {
+        "name": "Merck & Co., Inc.",
+        "symbol": "MRK",
+        "market": "NYSE",
+        "lastPrice": 120.84,
+        "askPrice": 120.92,
+        "bidPrice": 120.76,
+        "volume": 6350000,
+        "marketCap": 298760000000
+    },
+    {
+        "name": "Applied Materials, Inc.",
+        "symbol": "AMAT",
+        "market": "NASDAQ",
+        "lastPrice": 353.80,
+        "askPrice": 354.00,
+        "bidPrice": 353.60,
+        "volume": 5970000,
+        "marketCap": 280780000000
+    },
+    {
+        "name": "Lam Research Corp.",
+        "symbol": "LRCX",
+        "market": "NASDAQ",
+        "lastPrice": 222.01,
+        "askPrice": 222.20,
+        "bidPrice": 221.85,
+        "volume": 10700000,
+        "marketCap": 277240000000
+    },
+    {
+        "name": "Morgan Stanley",
+        "symbol": "MS",
+        "market": "NYSE",
+        "lastPrice": 166.17,
+        "askPrice": 166.30,
+        "bidPrice": 166.05,
+        "volume": 7120000,
+        "marketCap": 263850000000
+    },
+    {
+        "name": "Intel Corporation",
+        "symbol": "INTC",
+        "market": "NASDAQ",
+        "lastPrice": 48.01,
+        "askPrice": 48.06,
+        "bidPrice": 47.96,
+        "volume": 102100000,
+        "marketCap": 205400000000
+    },
+    {
+        "name": "The Walt Disney Co.",
+        "symbol": "DIS",
+        "market": "NYSE",
+        "lastPrice": 96.56,
+        "askPrice": 96.62,
+        "bidPrice": 96.50,
+        "volume": 8400000,
+        "marketCap": 170700000000
+    },
+    {
+        "name": "Salesforce, Inc.",
+        "symbol": "CRM",
+        "market": "NYSE",
+        "lastPrice": 186.24,
+        "askPrice": 186.40,
+        "bidPrice": 186.10,
+        "volume": 6100000,
+        "marketCap": 180300000000
+    },
+    {
+        "name": "PepsiCo, Inc.",
+        "symbol": "PEP",
+        "market": "NASDAQ",
+        "lastPrice": 137.00,
+        "askPrice": 137.10,
+        "bidPrice": 136.90,
+        "volume": 5200000,
+        "marketCap": 188400000000
+    },
+    {
+        "name": "McDonald's Corp.",
+        "symbol": "MCD",
+        "market": "NYSE",
+        "lastPrice": 307.29,
+        "askPrice": 307.45,
+        "bidPrice": 307.15,
+        "volume": 3100000,
+        "marketCap": 220500000000
+    },
+    {
+        "name": "Nike, Inc.",
+        "symbol": "NKE",
+        "market": "NYSE",
+        "lastPrice": 44.63,
+        "askPrice": 44.70,
+        "bidPrice": 44.55,
+        "volume": 18500000,
+        "marketCap": 66400000000
+    },
+    {
+        "name": "UnitedHealth Group",
+        "symbol": "UNH",
+        "market": "NYSE",
+        "lastPrice": 273.98,
+        "askPrice": 274.20,
+        "bidPrice": 273.75,
+        "volume": 4800000,
+        "marketCap": 253100000000
+    },
+    {
+        "name": "Goldman Sachs Group",
+        "symbol": "GS",
+        "market": "NYSE",
+        "lastPrice": 860.21,
+        "askPrice": 860.50,
+        "bidPrice": 859.90,
+        "volume": 1200000,
+        "marketCap": 285400000000
+    },
+    {
+        "name": "Boeing Co.",
+        "symbol": "BA",
+        "market": "NYSE",
+        "lastPrice": 207.32,
+        "askPrice": 207.50,
+        "bidPrice": 207.15,
+        "volume": 9100000,
+        "marketCap": 126300000000
+    },
+    {
+        "name": "Philip Morris Intl",
+        "symbol": "PM",
+        "market": "NYSE",
+        "lastPrice": 112.40,
+        "askPrice": 112.50,
+        "bidPrice": 112.30,
+        "volume": 4300000,
+        "marketCap": 174600000000
+    },
+    {
+        "name": "IBM Corporation",
+        "symbol": "IBM",
+        "market": "NYSE",
+        "lastPrice": 243.14,
+        "askPrice": 243.30,
+        "bidPrice": 243.00,
+        "volume": 3800000,
+        "marketCap": 223400000000
+    },
+    {
+        "name": "Verizon Communications",
+        "symbol": "VZ",
+        "market": "NYSE",
+        "lastPrice": 49.39,
+        "askPrice": 49.45,
+        "bidPrice": 49.33,
+        "volume": 14200000,
+        "marketCap": 207100000000
+    },
+    {
+        "name": "Amgen Inc.",
+        "symbol": "AMGN",
+        "market": "NASDAQ",
+        "lastPrice": 353.28,
+        "askPrice": 353.50,
+        "bidPrice": 353.05,
+        "volume": 2100000,
+        "marketCap": 189200000000
+    },
+    {
+        "name": "CrowdStrike Holdings",
+        "symbol": "CRWD",
+        "market": "NASDAQ",
+        "lastPrice": 393.43,
+        "askPrice": 393.65,
+        "bidPrice": 393.20,
+        "volume": 4100000,
+        "marketCap": 99000000000
+    },
+    {
+        "name": "Starbucks Corp.",
+        "symbol": "SBUX",
+        "market": "NASDAQ",
+        "lastPrice": 75.98,
+        "askPrice": 76.05,
+        "bidPrice": 75.90,
+        "volume": 7400000,
+        "marketCap": 86200000000
+    }
+]
