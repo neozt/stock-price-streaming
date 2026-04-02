@@ -43,6 +43,10 @@
               Connection: <span class="badge" :class="connected ? 'bg-success' : 'bg-secondary'" x-text="connected ? 'Connected' : 'Disconnected'"></span>
             </p>
           </div>
+          <div class="text-end" x-show="lastUpdated">
+            <small class="text-muted d-block">Last Update</small>
+            <div class="h5 mb-0" x-text="lastUpdated && lastUpdated.toLocaleTimeString()"></div>
+          </div>
         </div>
 
         <div class="card shadow-sm">
@@ -220,7 +224,7 @@
                             eventPayload = JSON.parse(eventPayload);
                         }
                         this.gridApi.setGridOption("rowData", eventPayload.data);
-                        this.lastUpdated = Date.parse(eventPayload.updatedAt)
+                        this.lastUpdated = new Date(Date.parse(eventPayload.updatedAt))
                     } catch (e) {
                         console.error("Error parsing streaming event data", e, msg);
                     }
