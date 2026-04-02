@@ -165,7 +165,7 @@
                 },
                 enable() {
                     this.resetGenerator();
-                    this.stockList = sortByVolume(getRandomStocks());
+                    this.stockList = getRandomStocks();
                     this.updateMessages = [];
                     this.generator = setInterval(
                         () => {
@@ -225,7 +225,7 @@
                         newStockList.push(newStock);
                     }
 
-                    this.stockList = sortByVolume(newStockList);
+                    this.stockList = newStockList;
                     const message = `Published update for ${updatedSymbols.length} tickers at ${new Date().toLocaleTimeString()}`;
                     console.log(message);
                     this.updateMessages.push(message);
@@ -236,8 +236,9 @@
                     }
                 },
                 async publishPrice() {
-                    const top30ByVolume = this.stockList.slice(0, 30);
+                    const top30ByVolume = sortByVolume(this.stockList).slice(0, 30);
                     try {
+                        const event = {type: 'update', updatedAt: new Date().toISOString(), data: top30ByVolume}
                         await fetch(`${APP_SYNC_URL}/event`, {
                             method: "POST",
                             headers: {
@@ -246,7 +247,7 @@
                             },
                             body: JSON.stringify({
                                 "channel": "stocks/top-volume-30",
-                                "events": [JSON.stringify(top30ByVolume)]
+                                "events": [JSON.stringify(event)]
                             }),
                         });
                     } catch (e) {

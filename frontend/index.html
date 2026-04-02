@@ -97,6 +97,7 @@
                 error: null,
                 ws: null,
                 connected: false,
+                lastUpdated: null,
                 gridApi: null,
 
                 setApiKey() {
@@ -218,7 +219,8 @@
                         if (typeof eventPayload === 'string') {
                             eventPayload = JSON.parse(eventPayload);
                         }
-                        this.gridApi.setGridOption("rowData", eventPayload);
+                        this.gridApi.setGridOption("rowData", eventPayload.data);
+                        this.lastUpdated = Date.parse(eventPayload.updatedAt)
                     } catch (e) {
                         console.error("Error parsing streaming event data", e, msg);
                     }
