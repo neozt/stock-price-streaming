@@ -1,0 +1,171 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Assign Claim Details",
+  "States": {
+    "Assign Claim Details": {
+      "Type": "Pass",
+      "Assign": {
+        "claimDetails": "{% $states.input %}"
+      },
+      "Next": "Save to DB"
+    },
+    "Save to DB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Arguments": {
+        "TableName": "${DYNAMODB_TABLE_NAME}",
+        "Item": {
+          "claimId": {
+            "S": "{% $claimDetails.claimId %}"
+          },
+          "status": {
+            "S": "PENDING_APPROVE"
+          },
+          "amount": {
+            "N": "{% $claimDetails.amount %}"
+          },
+          "claimant": {
+            "S": "{% $claimDetails.claimant %}"
+          },
+          "submittedAt": {
+            "S": "{% $claimDetails.submittedAt %}"
+          }
+        }
+      },
+      "Assign": {
+        "approvalResults": {
+          "status": "AUTO-APPROVED",
+          "reason": "Amount under $100"
+        }
+      },
+      "Next": "Require Manual Approval?"
+    },
+    "Require Manual Approval?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Wait for Approval",
+          "Condition": "{% $number($claimDetails.amount) > 100 %}"
+        }
+      ],
+      "Default": "Auto Approve"
+    },
+    "Auto Approve": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Arguments": {
+        "TableName": "${DYNAMODB_TABLE_NAME}",
+        "Key": {
+          "claimId": {
+            "S": "{% $claimDetails.claimId %}"
+          }
+        },
+        "UpdateExpression": "SET #status = :status",
+        "ExpressionAttributeNames": {
+          "#status": "status"
+        },
+        "ExpressionAttributeValues": {
+          ":status": {
+            "S": "APPROVED"
+          }
+        }
+      },
+      "Assign": {
+        "approvalResults": {
+          "status": "AUTO-APPROVED",
+          "reason": "Amount under $100"
+        }
+      },
+      "Next": "Notify Claims Approved"
+    },
+    "Wait for Approval": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:updateItem.waitForTaskToken",
+      "Arguments": {
+        "TableName": "${DYNAMODB_TABLE_NAME}",
+        "Key": {
+          "claimId": {
+            "S": "{% $claimDetails.claimId %}"
+          }
+        },
+        "UpdateExpression": "SET taskToken = :taskToken",
+        "ExpressionAttributeValues": {
+          ":taskToken": {
+            "S": "{% $states.context.Task.Token %}"
+          }
+        }
+      },
+      "Assign": {
+        "approvalResults": "{% $states.result %}"
+      },
+      "Next": "Update Approval Results"
+    },
+    "Update Approval Results": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Arguments": {
+        "TableName": "${DYNAMODB_TABLE_NAME}",
+        "Key": {
+          "claimId": {
+            "S": "{% $claimDetails.claimId %}"
+          }
+        },
+        "UpdateExpression": "SET #status = :status, decisionDate = :decisionDate",
+        "ExpressionAttributeNames": {
+          "#status": "status"
+        },
+        "ExpressionAttributeValues": {
+          ":status": {
+            "S": "{% $approvalResults.status %}"
+          },
+          ":decisionDate": {
+            "S": "{% $approvalResults.decisionDate %}"
+          }
+        }
+      },
+      "Next": "Claim Approved?"
+    },
+    "Claim Approved?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Notify Claims Approved",
+          "Condition": "{% $approvalResults.status = 'APPROVED' %}"
+        },
+        {
+          "Next": "Notify Claims Rejected",
+          "Condition": "{% $approvalResults.status = 'REJECTED' %}"
+        }
+      ]
+    },
+    "Notify Claims Approved": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${SNS_TOPIC_ARN}",
+        "Message": {
+          "message": "The claim has been approved.",
+          "results": "{% $approvalResults %}",
+          "claimDetails": "{% $claimDetails %}",
+          "claimId": "{% $claimDetails.claimId %}"
+        }
+      },
+      "End": true
+    },
+    "Notify Claims Rejected": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Arguments": {
+        "TopicArn": "${SNS_TOPIC_ARN}",
+        "Message": {
+          "message": "The claim has been rejected.",
+          "results": "{% $approvalResults %}",
+          "claimDetails": "{% $claimDetails %}",
+          "claimId": "{% $claimDetails.claimId %}"
+        }
+      },
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONata"
+}
