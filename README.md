@@ -1,6 +1,11 @@
 # stock-price-streaming
 
+
+## Demo
+![Demo screen recording](docs/demo.gif)
+
 ## Architecture
+![Architecture diagram](docs/architecture.drawio.png)
 
 ## Tech stack
 1. Amazon AppSync Events
@@ -17,3 +22,6 @@
 
 ## How to teardown
 1. Run `sam delete --config-env <dev|prod>` to delete the SAM application.
+
+## Developing on Local
+1. Once the CloudFormation stack have been deployed, you can run `.\build_frontend.ps1` to build the frontend into `/dist` folder without being deployed to S3 and CloudFront. 
