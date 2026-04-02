@@ -118,11 +118,11 @@
         import {events} from 'https://esm.sh/aws-amplify@6/api';
         import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.8/dist/module.esm.js';
 
-        Alpine.data('randomGenerator', function () {
-                const GENERATOR_INTERVAL_MS = 1000;
-                const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
-                const CHANNEL = 'stocks/top-volume-30';
+        const GENERATOR_INTERVAL_MS = 1000;
+        const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
+        const CHANNEL = 'stocks/top-volume-30';
 
+        Alpine.data('randomGenerator', () => {
                 return {
                     gridApi: null,
                     apiKey: null,

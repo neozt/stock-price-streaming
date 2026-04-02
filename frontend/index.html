@@ -91,8 +91,8 @@
     </div>
 
     <script type="module">
-        import { Amplify } from 'https://esm.sh/aws-amplify@6';
-        import { events } from 'https://esm.sh/aws-amplify@6/api';
+        import {Amplify} from 'https://esm.sh/aws-amplify@6';
+        import {events} from 'https://esm.sh/aws-amplify@6/api';
         import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.8/dist/module.esm.js';
 
         const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
@@ -190,7 +190,7 @@
 
                         console.log('Connecting to Amplify Events channel:', CHANNEL);
                         this.connection = await events.connect(CHANNEL);
-                        
+
                         this.subscription = await this.connection.subscribe({
                             next: (data) => {
                                 this.processData(data);
