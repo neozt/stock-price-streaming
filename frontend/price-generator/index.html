@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Random Price Generator</title>
+    <title>Market Simulator</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Alpine.js -->
@@ -39,16 +39,19 @@
         </div>
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h2 class="mb-0">Random Price Generator</h2>
+            <h2 class="mb-0">Market Simulator</h2>
             <p class="text-muted mb-0">
               Status: <span class="badge" :class="enabled ? 'bg-success' : 'bg-secondary'" x-text="enabled ? 'Active' : 'Inactive'"></span>
             </p>
+            <div class="text-secondary smaller mt-1" style="font-size: 0.8rem;">
+              ℹ️ High-frequency mock data points are generated locally and broadcasted via AppSync.
+            </div>
           </div>
           <button
               class="btn"
               :class="enabled ? 'btn-outline-danger' : 'btn-success btn-lg'"
               @click="toggleEnabled()"
-              x-text="enabled ? 'Stop Generator' : 'Start Generator'"
+              x-text="enabled ? 'Stop Simulator' : 'Start Simulator'"
           ></button>
         </div>
 
@@ -80,8 +83,9 @@
         <div class="card p-4 shadow-sm" style="max-width: 500px; margin: auto;">
           <div class="text-center mb-4">
             <div class="display-6 mb-2">📊</div>
-            <h3 class="card-title">Random Price Generator</h3>
-            <p class="text-muted">Enter your AppSync API Key to start broadcasting mock stock price events.</p>
+            <h3 class="card-title">Market Simulator</h3>
+            <p class="text-muted mb-2">Enter your AppSync API Key to start broadcasting mock stock price events.</p>
+            <p class="small text-secondary"><em>This tool generates simulated, randomized market data for demonstration purposes only.</em></p>
           </div>
           <div class="mb-3">
             <label class="form-label" for="apiKeyInput">API Key</label>
