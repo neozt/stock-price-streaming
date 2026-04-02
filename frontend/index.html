@@ -33,7 +33,7 @@
 
       <div x-show="apiKey">
         <h3>Top 30 Stocks By Volume:</h3>
-        <div id="priceTable" class="ag-theme-alpine mt-2" style="height: 500px; width: 100%;"></div>
+        <div id="priceTable" class="mt-2" style="height: 500px; width: 100%;"></div>
       </div>
 
       <div x-show="!apiKey">
@@ -103,7 +103,7 @@
                             { field: 'lastPrice', headerName: 'Last Price' },
                             { field: 'askPrice', headerName: 'Ask Price' },
                             { field: 'bidPrice', headerName: 'Bid Price' },
-                            { field: 'volume', headerName: 'Volume' },
+                            { field: 'volume', headerName: 'Volume', sortable: true, sort: 'desc' },
                             { field: 'marketCap', headerName: 'Market Cap' },
                         ],
                         defaultColDef: { flex: 1, sortable: true }
