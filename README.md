@@ -42,27 +42,34 @@ The application follows a clean, event-driven serverless architecture:
 - Docker (required for `sam build`)
 
 ### Deployment
-1.  **Configure AWS**:
+1. **Configure AWS**:
     ```bash
     aws configure
     ```
-2.  **Build & Deploy Backend**:
+2. **Install npm Dependencies**
+    ```bash
+    npm install
+    ```
+3. **Build & Deploy Backend**:
     ```bash
     sam build
     sam deploy --config-env dev
     ```
-3.  **Deploy Frontend**:
+4. **Deploy Frontend**:
     Execute the PowerShell script to build and sync the frontend to your S3 bucket:
     ```powershell
     .\deploy_frontend.ps1
     ```
 
 ### Local Development
-After deploying the stack, you can build the frontend locally to the `/dist` folder for testing purposes:
-```powershell
-.\build_frontend.ps1
-```
-
+1. After deploying the stack, you can build the frontend locally to the `/dist` folder for testing purposes:
+    ```powershell
+    .\build_frontend.ps1
+    ```
+2. Then serve the `/dist` folder by running:
+    ```bash
+    npm run serve
+    ```
 ## 🧹 Teardown
 To remove all resources created by this project:
 ```bash
