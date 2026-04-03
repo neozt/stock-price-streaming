@@ -40,7 +40,7 @@
         </div>
 
         <!-- Session conflict warning -->
-        <div class="alert alert-warning" role="alert" x-show="hasSessionConflict" @click="hasSessionConflict = false"
+        <div class="alert alert-warning" role="alert" x-show="sessionConflict" @click="sessionConflict = false"
              style="cursor: pointer;">
           Session conflict detected: Only one active simulator is allowed. This instance is now inactive.
         </div>
@@ -143,7 +143,7 @@
                     updateMessages: [],
                     loading: false,
                     error: null,
-                    hasSessionConflict: false,
+                    sessionConflict: false,
                     initialStockList: [],
 
                     async init() {
@@ -218,7 +218,7 @@
 
                     async enable() {
                         this.loading = true;
-                        this.hasSessionConflict = false;
+                        this.sessionConflict = false;
                         try {
                             await this.obtainLock();
                             this.resetGenerator();
@@ -258,16 +258,15 @@
                     async obtainLock() {
                         this.lock = crypto.randomUUID();
                         this.lockChannel = await events.connect(SIMULATOR_LOCK_CHANNEL);
+                        this.lockChannel.publish({currentOwner: this.lock});
                         this.lockChannel.subscribe({
                             next: (message) => {
-                                console.log(message);
                                 if (message.event.currentOwner !== this.lock && this.enabled) {
-                                    this.hasSessionConflict = true;
+                                    this.sessionConflict = true;
                                     this.disable();
                                 }
                             }
                         });
-                        this.lockChannel.publish({currentOwner: this.lock});
                     },
 
                     randomisePrice() {
