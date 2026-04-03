@@ -32,6 +32,16 @@ Resources:
       SubscribeAuthModes:
         - AuthType: API_KEY
 
+  SimulatorNamespace:
+    Type: AWS::AppSync::ChannelNamespace
+    Properties:
+      ApiId: !GetAtt StockPriceEventsApi.ApiId
+      Name: "simulator"
+      PublishAuthModes:
+        - AuthType: API_KEY
+      SubscribeAuthModes:
+        - AuthType: API_KEY
+
   StockApiKey:
     Type: AWS::AppSync::ApiKey
     Properties:

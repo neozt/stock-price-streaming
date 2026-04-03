@@ -33,6 +33,18 @@
         <div class="mb-3">
           <a href="/" class="text-decoration-none text-secondary small">&larr; Back to Streaming Dashboard</a>
         </div>
+
+        <!-- Error Alert -->
+        <div class="alert alert-danger" role="alert" x-show="error" x-text="error" @click="error = null"
+             style="cursor: pointer;">
+        </div>
+
+        <!-- Session conflict warning -->
+        <div class="alert alert-warning" role="alert" x-show="hasSessionConflict" @click="hasSessionConflict = false"
+             style="cursor: pointer;">
+          Session conflict detected: Only one active simulator is allowed. This instance is now inactive.
+        </div>
+
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 class="mb-0">Market Simulator</h2>
@@ -44,7 +56,7 @@
               ℹ️ High-frequency mock data points are generated locally and broadcasted via AppSync.
             </div>
           </div>
-          <button class="btn" :class="enabled ? 'btn-outline-danger' : 'btn-success btn-lg'"
+          <button class="btn" :class="enabled ? 'btn-outline-danger' : 'btn-success'"
                   @click="toggleEnabled()" x-text="enabled ? 'Stop Simulator' : 'Start Simulator'"></button>
         </div>
 
@@ -105,11 +117,6 @@
         </div>
       </div>
 
-      <!-- Error Alert -->
-      <div class="alert alert-danger" role="alert" x-show="error" x-text="error" @click="error = null"
-           style="cursor: pointer;">
-      </div>
-
     </div>
 
     <script type="module">
@@ -121,6 +128,7 @@
         const GENERATOR_INTERVAL_MS = 1000;
         const APP_SYNC_HTTP_ENDPOINT = '%%AppSyncHttpEndpoint%%';
         const CHANNEL = 'stocks/top-volume-30';
+        const SIMULATOR_LOCK_CHANNEL = 'simulator/lock';
 
         Alpine.data('randomGenerator', () => {
                 return {
@@ -129,17 +137,20 @@
                     apiKeyInput: '',
                     enabled: false,
                     generator: null,
+                    lock: null,
+                    lockChannel: null,
                     stockList: [],
                     updateMessages: [],
                     loading: false,
                     error: null,
-                    allStocks: [],
+                    hasSessionConflict: false,
+                    initialStockList: [],
 
                     async init() {
                         try {
                             const response = await fetch('/assets/stocks.json');
-                            this.allStocks = await response.json();
-                            console.log(`Loaded ${this.allStocks.length} stocks from JSON.`);
+                            this.initialStockList = await response.json();
+                            console.log(`Loaded ${this.initialStockList.length} stocks from JSON.`);
                         } catch (e) {
                             console.error("Failed to load stocks.json", e);
                             this.error = "Failed to load stock data.";
@@ -205,24 +216,35 @@
                         }
                     },
 
-                    enable() {
-                        this.resetGenerator();
-                        this.stockList = this.allStocks;
-                        this.updateMessages = [];
-                        this.generator = setInterval(
-                            () => {
-                                this.randomisePrice();
-                                this.updatePriceTable(this.stockList);
-                                this.publishPrice();
-                            },
-                            GENERATOR_INTERVAL_MS
-                        );
+                    async enable() {
+                        this.loading = true;
+                        this.hasSessionConflict = false;
+                        try {
+                            await this.obtainLock();
+                            this.resetGenerator();
+                            this.stockList = this.initialStockList;
+                            this.updateMessages = [];
+                            this.generator = setInterval(
+                                () => {
+                                    this.randomisePrice();
+                                    this.updatePriceTable(this.stockList);
+                                    this.publishPrice();
+                                },
+                                GENERATOR_INTERVAL_MS
+                            );
 
-                        this.enabled = true;
+                            this.enabled = true;
+                        } finally {
+                            this.loading = false;
+                        }
                     },
 
                     disable() {
                         this.resetGenerator();
+                        if (this.lockChannel) {
+                            this.lockChannel.close();
+                        }
+                        this.lock = null;
                         this.enabled = false;
                     },
 
@@ -231,6 +253,21 @@
                             clearInterval(this.generator);
                             this.generator = null;
                         }
+                    },
+
+                    async obtainLock() {
+                        this.lock = crypto.randomUUID();
+                        this.lockChannel = await events.connect(SIMULATOR_LOCK_CHANNEL);
+                        this.lockChannel.subscribe({
+                            next: (message) => {
+                                console.log(message);
+                                if (message.event.currentOwner !== this.lock && this.enabled) {
+                                    this.hasSessionConflict = true;
+                                    this.disable();
+                                }
+                            }
+                        });
+                        this.lockChannel.publish({currentOwner: this.lock});
                     },
 
                     randomisePrice() {
