@@ -24,6 +24,14 @@
             align-items: center;
             z-index: 1000;
         }
+
+        .value-increase {
+            --ag-value-change-value-highlight-background-color: rgba(46, 204, 113, 0.25);
+        }
+
+        .value-decrease {
+            --ag-value-change-value-highlight-background-color: rgba(231, 76, 60, 0.25);
+        }
     </style>
   </head>
 
@@ -167,7 +175,23 @@
                             sortable: true,
                             resizable: true,
                             enableCellChangeFlash: true,
-                            cellDataType: false // Disable auto-inference to handle custom flashing manually
+                            cellDataType: false,
+                            cellClassRules: {
+                                'value-increase': params => {
+                                    if (!params.colDef.field || !params.data) {
+                                        return false;
+                                    }
+                                    const prevVal = params.data['prev_' + params.colDef.field];
+                                    return prevVal !== undefined && params.value > prevVal;
+                                },
+                                'value-decrease': params => {
+                                    if (!params.colDef.field || !params.data) {
+                                        return false;
+                                    }
+                                    const prevVal = params.data['prev_' + params.colDef.field];
+                                    return prevVal !== undefined && params.value < prevVal;
+                                },
+                            },
                         }
                     };
 
@@ -221,7 +245,19 @@
                 processData(event) {
                     try {
                         const payload = event.event;
-                        this.gridApi.setGridOption("rowData", payload.data);
+                        const stockList = payload.data
+
+                        // Store previous value for comparison
+                        for (const stock of stockList) {
+                            const node = this.gridApi?.getRowNode(stock.symbol);
+                            if (node?.data) {
+                                for (const key of Object.keys(node.data)) {
+                                    stock['prev_' + key] = node.data[key];
+                                }
+                            }
+                        }
+
+                        this.gridApi.setGridOption("rowData", stockList);
                         this.lastUpdated = new Date(Date.parse(payload.updatedAt))
                     } catch (e) {
                         console.error("Error processing event data", e, event);
@@ -259,7 +295,7 @@
 
             const prevCloseY = height - ((prevClose - min) / range) * height;
             const isUp = lastPrice >= prevClose;
-            const color = isUp ? '#198754' : '#dc3545';
+            const color = isUp ? '#2ecc71' : '#e74c3c'; // Modern emerald and coral red
 
             const wrapper = document.createElement('div');
             wrapper.className = 'd-flex align-items-center justify-content-between w-100';
