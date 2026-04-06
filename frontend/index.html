@@ -149,40 +149,7 @@
                                 field: 'lastPrice',
                                 minWidth: 200,
                                 valueFormatter: priceFormatter,
-                                cellRenderer: (params) => {
-                                    const history = params.data.priceHistory;
-                                    const price = params.valueFormatted;
-
-                                    if (history.length < 2) {
-                                        return `<span style="font-weight: 600;">${price}</span>`;
-                                    }
-
-                                    const prevClose = params.data.previousClose || history[0];
-                                    const min = Math.min(...history, prevClose);
-                                    const max = Math.max(...history, prevClose);
-                                    const range = (max - min) || 0.0001;
-                                    const width = 80;
-                                    const height = 20;
-                                    const points = history.map((val, i) => {
-                                        const x = (i / (history.length - 1)) * width;
-                                        const y = height - ((val - min) / range) * height;
-                                        return `${x},${y}`;
-                                    }).join(' ');
-
-                                    const prevCloseY = height - ((prevClose - min) / range) * height;
-                                    const isUp = params.value >= prevClose;
-                                    const color = isUp ? '#198754' : '#dc3545';
-
-                                    return `
-                                        <div class="d-flex align-items-center justify-content-between w-100">
-                                            <span style="font-weight: 600;">${price}</span>
-                                            <svg width="${width}" height="${height}" style="overflow: visible; margin-left: 10px;">
-                                                <line x1="0" y1="${prevCloseY}" x2="${width}" y2="${prevCloseY}" stroke="#aaa" stroke-width="1" stroke-dasharray="2,2" />
-                                                <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                        </div>
-                                    `;
-                                }
+                                cellRenderer: renderLastPriceCell,
                             },
                             {field: 'askPrice', headerName: 'Ask Price', valueFormatter: priceFormatter},
                             {field: 'bidPrice', headerName: 'Bid Price', valueFormatter: priceFormatter},
@@ -265,6 +232,79 @@
 
         window.Alpine = Alpine;
         Alpine.start();
+    </script>
+
+    <script>
+        function renderLastPriceCell(params) {
+            const history = params.data.priceHistory;
+            const price = params.valueFormatted;
+            const prevClose = params.data.previousClose;
+            const lastPrice = params.value
+
+            if (history.length < 2) {
+                return `<span style="font-weight: 600;">${price}</span>`;
+            }
+
+            const min = Math.min(...history, prevClose);
+            const max = Math.max(...history, prevClose);
+            const range = (max - min) || 0.0001;
+            const width = 80;
+            const height = 20;
+
+            const points = history.map((val, i) => {
+                const x = (i / (history.length - 1)) * width;
+                const y = height - ((val - min) / range) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            const prevCloseY = height - ((prevClose - min) / range) * height;
+            const isUp = lastPrice >= prevClose;
+            const color = isUp ? '#198754' : '#dc3545';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'd-flex align-items-center justify-content-between w-100';
+            wrapper.innerHTML = `
+              <span style="font-weight: 600;">${price}</span>
+              <div style="position: relative; margin-left: 10px;">
+                <svg width="${width}" height="${height}" style="overflow: visible; cursor: crosshair;">
+                  <line x1="0" y1="${prevCloseY}" x2="${width}" y2="${prevCloseY}" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2" />
+                  <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle class="hover-point" r="3.5" fill="${color}" stroke="white" stroke-width="1" style="display: none; pointer-events: none;" />
+                  <text class="hover-value" text-anchor="middle" style="display: none; font-size: 10px; font-weight: 600; fill: ${color}; pointer-events: none;"></text>
+                </svg>
+              </div>
+            `;
+
+            const svg = wrapper.querySelector('svg');
+            const hoverPoint = wrapper.querySelector('.hover-point');
+            const hoverValue = wrapper.querySelector('.hover-value');
+
+            svg.addEventListener('mousemove', (e) => {
+                const rect = svg.getBoundingClientRect();
+                const xPos = e.clientX - rect.left;
+                const index = Math.round((xPos / width) * (history.length - 1));
+                const clampedIndex = Math.max(0, Math.min(history.length - 1, index));
+
+                const val = history[clampedIndex];
+                const x = (clampedIndex / (history.length - 1)) * width;
+                const y = height - ((val - min) / range) * height;
+
+                hoverPoint.setAttribute('cx', x);
+                hoverPoint.setAttribute('cy', y);
+                hoverPoint.style.display = 'block';
+
+                hoverValue.textContent = val.toFixed(4);
+                hoverValue.setAttribute('x', x);
+                hoverValue.setAttribute('y', Math.max(0, y - 6));
+                hoverValue.style.display = 'block';
+            });
+
+            svg.addEventListener('mouseleave', () => {
+                hoverPoint.style.display = 'none';
+                hoverValue.style.display = 'none';
+            });
+            return wrapper;
+        }
     </script>
   </body>
 </html>
