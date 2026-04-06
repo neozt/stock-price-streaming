@@ -181,14 +181,14 @@
                                     if (!params.colDef.field || !params.data) {
                                         return false;
                                     }
-                                    const prevVal = params.data['prev_' + params.colDef.field];
+                                    const prevVal = params.data?.previous?.[params.colDef.field];
                                     return prevVal !== undefined && params.value > prevVal;
                                 },
                                 'value-decrease': params => {
                                     if (!params.colDef.field || !params.data) {
                                         return false;
                                     }
-                                    const prevVal = params.data['prev_' + params.colDef.field];
+                                    const prevVal = params.data?.previous?.[params.colDef.field];
                                     return prevVal !== undefined && params.value < prevVal;
                                 },
                             },
@@ -245,16 +245,16 @@
                 processData(event) {
                     try {
                         const payload = event.event;
-                        const stockList = payload.data
+                        const stockList = [];
 
                         // Store previous value for comparison
-                        for (const stock of stockList) {
-                            const node = this.gridApi?.getRowNode(stock.symbol);
+                        for (const item of payload.data) {
+                            const stock = {...item};
+                            const node = this.gridApi?.getRowNode(item.symbol);
                             if (node?.data) {
-                                for (const key of Object.keys(node.data)) {
-                                    stock['prev_' + key] = node.data[key];
-                                }
+                                stock.previous = {...node.data, previous: undefined};
                             }
+                            stockList.push(stock);
                         }
 
                         this.gridApi.setGridOption("rowData", stockList);
