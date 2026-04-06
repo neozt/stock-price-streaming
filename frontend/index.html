@@ -157,9 +157,10 @@
                                         return `<span style="font-weight: 600;">${price}</span>`;
                                     }
 
-                                    const min = Math.min(...history);
-                                    const max = Math.max(...history);
-                                    const range = max - min;
+                                    const prevClose = params.data.previousClose || history[0];
+                                    const min = Math.min(...history, prevClose);
+                                    const max = Math.max(...history, prevClose);
+                                    const range = (max - min) || 0.0001;
                                     const width = 80;
                                     const height = 20;
                                     const points = history.map((val, i) => {
@@ -168,13 +169,15 @@
                                         return `${x},${y}`;
                                     }).join(' ');
 
-                                    const isUp = params.value >= params.data.previousClose;
+                                    const prevCloseY = height - ((prevClose - min) / range) * height;
+                                    const isUp = params.value >= prevClose;
                                     const color = isUp ? '#198754' : '#dc3545';
 
                                     return `
                                         <div class="d-flex align-items-center justify-content-between w-100">
                                             <span style="font-weight: 600;">${price}</span>
                                             <svg width="${width}" height="${height}" style="overflow: visible; margin-left: 10px;">
+                                                <line x1="0" y1="${prevCloseY}" x2="${width}" y2="${prevCloseY}" stroke="#aaa" stroke-width="1" stroke-dasharray="2,2" />
                                                 <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </div>
