@@ -222,7 +222,10 @@
                         try {
                             await this.obtainLock();
                             this.resetGenerator();
-                            this.stockList = this.initialStockList;
+                            this.stockList = this.initialStockList.map((stock) => ({
+                                ...stock,
+                                priceHistory: [stock.lastPrice]
+                            }));
                             this.updateMessages = [];
                             this.generator = setInterval(
                                 () => {
@@ -292,7 +295,12 @@
                                 if (Math.random() <= PROP_UPDATE_CHANCE) {
                                     // Update price fields
                                     const changePercent = gaussianRandom(0, VOLATILITY);
-                                    newStock[prop] = Math.max(0, newStock[prop] * (1 + changePercent)); // Ensure value doesn't drop below 0
+                                    const newValue = newStock[prop] * (1 + changePercent)
+                                    newStock[prop] = Math.max(0, newValue); // Ensure value doesn't drop below 0
+
+                                    if (prop === 'lastPrice') {
+                                        newStock.priceHistory = [...stock.priceHistory, newValue].slice(-30);
+                                    }
                                 }
                             });
 
