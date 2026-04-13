@@ -6,6 +6,10 @@ Parameters:
   Environment:
     Type: String
     Default: Local
+  ApiKeyExpiration:
+    Type: Number
+    Description: "The time, in seconds since the epoch, when the API key expires (max 365 days from now)"
+    Default: 1807602358 # April 13, 2027
 
 Resources:
   StockPriceEventsApi:
@@ -47,6 +51,7 @@ Resources:
     Properties:
       ApiId: !GetAtt StockPriceEventsApi.ApiId
       Description: "Key for frontend stock price subscription"
+      Expires: !Ref ApiKeyExpiration
 
   # S3 Bucket to host frontend website
   WebSiteBucket:
