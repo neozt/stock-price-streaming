@@ -9,14 +9,14 @@ A high-performance, real-time stock price monitoring dashboard built with a mode
 - **Real-time Streaming**: Powered by AWS AppSync Events (Pub/Sub over WebSockets) for instantaneous data updates.
 - **Interactive Data Grid**: Utilizes **AG Grid** for high-performance rendering, sorting, and live cell flashing.
 - **Reactive UI**: Built with **AlpineJS** for a lightweight, maintainable, and responsive frontend experience.
-- **Market Simulator**: Includes a built-in `price-generator` utility to simulate market volatility and volume-based price movements.
+- **Market Simulator**: Includes a built-in `market-simulator` utility to simulate market volatility and volume-based price movements.
 - **Serverless & Scalable**: Fully hosted on AWS using S3 and CloudFront, ensuring global availability and high performance.
 
 ## 🏗️ Architecture
 
 The application follows a clean, event-driven serverless architecture:
 
-1.  **Ingestion**: A producer (like the included `price-generator`) publishes stock updates to an **AppSync Channel**.
+1.  **Ingestion**: A producer (like the included `market-simulator`) publishes stock updates to an **AppSync Channel**.
 2.  **Broadcasting**: **AWS AppSync Events** broadcasts the payload to all connected clients over WebSockets.
 3.  **Visualization**: The frontend receives the stream and updates the **AG Grid** in real-time, providing visual feedback (flashes) on price changes.
 
