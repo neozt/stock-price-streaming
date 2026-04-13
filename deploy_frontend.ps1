@@ -7,28 +7,64 @@ if (-not $stack_name) {
     $stack_name = Read-Host "Enter the name of the CloudFormation stack"
 }
 
-# Run build script
-Write-Host "Starting build process..."
-. ./build_frontend.ps1 -stack_name $stack_name
-if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) {
-    Write-Error "Build failed. Deployment aborted."
+# Get all stack outputs from CloudFormation
+Write-Host "Fetching outputs for stack: $stack_name..."
+$outputs_json = aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs" --output json
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to fetch stack outputs. Please check the stack name and your AWS credentials."
     exit $LASTEXITCODE
 }
 
-# The build script returns the outputMap, so we can use it here
-# However, in PowerShell, the return value of a script called with '.' or '&' 
-# might need to be captured if we want to use variables directly.
-# For simplicity and robustness, let's fetch the outputs again or rely on the build script 
-# having set things correctly in dist/
-
-# Let's fetch outputs again to be safe and clear in this script
-Write-Host "Fetching outputs for deployment: $stack_name..."
-$outputs_json = aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs" --output json
 $outputs = $outputs_json | ConvertFrom-Json
 $outputMap = @{}
 foreach ($out in $outputs) {
     $outputMap[$out.OutputKey] = $out.OutputValue
 }
+
+# Load .env template
+$env_path = "frontend/.env"
+if (-not (Test-Path $env_path)) {
+    Write-Error ".env file not found at $env_path"
+    exit 1
+}
+$env_content = Get-Content -Path $env_path -Raw
+
+# Replace placeholders %%xxx%% with stack outputs
+Write-Host "Replacing placeholders in .env..."
+foreach ($key in $outputMap.Keys) {
+    $placeholder = "%%$key%%"
+    $value = $outputMap[$key]
+    if ($env_content.Contains($placeholder)) {
+        Write-Host "  Replacing $placeholder"
+        $env_content = $env_content.Replace($placeholder, $value)
+    }
+}
+
+# Write .env.production
+Write-Host "Generating .env.production..."
+$env_content | Out-File -FilePath "frontend/.env.production" -Encoding utf8
+
+# Run npm install and build
+Write-Host "Running npm install in frontend..."
+Set-Location frontend
+npm ci
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "npm install failed."
+    Set-Location ..
+    exit $LASTEXITCODE
+}
+
+Write-Host "Running vite build..."
+npm run build
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Vite build failed."
+    Set-Location ..
+    exit $LASTEXITCODE
+}
+
+Set-Location ..
+
+Write-Host "Build complete! Files are in the 'dist' directory."
 
 $cloudfront_distribution_id = $outputMap["CloudFrontDistributionId"]
 $s3_bucket_name = $outputMap["WebS3BucketName"]
