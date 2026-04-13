@@ -2,7 +2,3 @@ node_modules
 dist/
 .idea/
 .aws-sam/
-frontend/node_modules
-.env.*
-.env.production
-!.env.example
