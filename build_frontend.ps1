@@ -21,37 +21,48 @@ foreach ($out in $outputs) {
     $outputMap[$out.OutputKey] = $out.OutputValue
 }
 
-# Prepare dist directory
-if (Test-Path "dist") {
-    Write-Host "Cleaning dist directory..."
-    Remove-Item -Path "dist" -Recurse -Force
+# Load .env template
+$env_path = "frontend/.env"
+if (-not (Test-Path $env_path)) {
+    Write-Error ".env file not found at $env_path"
+    exit 1
 }
-New-Item -ItemType Directory -Path "dist" -Force
+$env_content = Get-Content -Path $env_path -Raw
 
-Write-Host "Copying frontend files to dist..."
-Copy-Item -Path "frontend/*" -Destination "dist" -Recurse
-
-# Replace placeholders in every file with outputs from StackFormation in dist/.
-# Placeholders are enclosed by double % signs, eg %%placeholder%%.
-# IMPORTANT: Do not include secrets in frontend using placeholder, they will be included in the client bundle.
-Write-Host "Replacing placeholders with CloudFormation outputs..."
-$files = Get-ChildItem -Path "dist" -Recurse -File
-foreach ($file in $files) {
-    $content = Get-Content -Path $file.FullName -Raw
-    $modified = $false
-    foreach ($key in $outputMap.Keys) {
-        $placeholder = "`%%$key%%"
-        $value = $outputMap[$key]
-        if ($content.Contains($placeholder)) {
-            Write-Host "  Replacing $placeholder in $($file.Name)"
-            $content = $content.Replace($placeholder, $value)
-            $modified = $true
-        }
-    }
-    if ($modified) {
-        Set-Content -Path $file.FullName -Value $content
+# Replace placeholders %%xxx%% with stack outputs
+Write-Host "Replacing placeholders in .env..."
+foreach ($key in $outputMap.Keys) {
+    $placeholder = "%%$key%%"
+    $value = $outputMap[$key]
+    if ($env_content.Contains($placeholder)) {
+        Write-Host "  Replacing $placeholder"
+        $env_content = $env_content.Replace($placeholder, $value)
     }
 }
+
+# Write .env.production
+Write-Host "Generating .env.production..."
+$env_content | Out-File -FilePath "frontend/.env.production" -Encoding utf8
+
+# Run npm install and build
+Write-Host "Running npm install in frontend..."
+Set-Location frontend
+npm ci
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "npm install failed."
+    Set-Location ..
+    exit $LASTEXITCODE
+}
+
+Write-Host "Running vite build..."
+npm run build
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Vite build failed."
+    Set-Location ..
+    exit $LASTEXITCODE
+}
+
+Set-Location ..
 
 Write-Host "Build complete! Files are in the 'dist' directory."
 return $outputMap
