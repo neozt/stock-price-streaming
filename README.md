@@ -30,6 +30,7 @@ The application follows a clean, event-driven serverless architecture:
 - **[Amazon S3](https://aws.amazon.com/s3/) & [CloudFront](https://aws.amazon.com/cloudfront/)**: Static website hosting and global content delivery.
 
 ### Frontend
+- **[Vite](https://vite.dev/)**: Blazing fast frontend build tool.
 - **[AlpineJS](https://alpinejs.dev/)**: Lightweight JavaScript framework for reactive components.
 - **[AG Grid](https://www.ag-grid.com/)**: Industry-leading data grid for real-time updates.
 - **[Bootstrap 5](https://getbootstrap.com/)**: Modern styling and responsive layout.
@@ -61,15 +62,18 @@ The application follows a clean, event-driven serverless architecture:
     .\deploy_frontend.ps1
     ```
 
-### Local Development
-1. After deploying the stack, you can build the frontend locally to the `/dist` folder for testing purposes:
-    ```powershell
-    .\build_frontend.ps1
-    ```
-2. Then serve the `/dist` folder by running:
+### 💻 Local Development
+1. **Configure Local Environment**:
+    Create a `frontend/.env.local` file by copying the contents of `frontend/.env` and replacing the placeholders with your CloudFormation output values.
+2. **Launch Development Server**:
+    Start the Vite development server to preview the dashboard and market simulator locally:
     ```bash
-    npm run serve
+    npm run frontend:dev
     ```
+    The application will be available at:
+    - **Dashboard**: `http://localhost:3000`
+    - **Simulator**: `http://localhost:3000/market-simulator/`
+
 ## 🧹 Teardown
 To remove all resources created by this project:
 ```bash
